@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EWO - Blog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,300..600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a1628;--card:#142540;--line:#1f3556;--txt:#e8edf5;--txt-2:#8a9bb8;--txt-3:#5a6e8c;
+  --blue:#5b9eff;--cyan:#4dd0e1;--orange:#ff8a3d;--red:#ef4444;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans",system-ui,sans-serif}
+body{
+  background:
+    radial-gradient(1200px 760px at 80% -10%, rgba(91,158,255,.10), transparent 62%),
+    radial-gradient(920px 680px at -10% 60%, rgba(239,68,68,.07), transparent 58%),
+    var(--bg);
+}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:24px;
+  padding:22px 48px;border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;color:var(--txt-2);
+}
+.brand{display:flex;align-items:center;gap:14px;color:var(--txt)}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,var(--orange),var(--red));box-shadow:0 0 14px var(--orange)}
+nav{display:flex;gap:26px;flex-wrap:wrap}
+nav a{color:var(--txt-2);text-decoration:none}
+nav a:hover{color:var(--txt)}
+main{max-width:1180px;margin:0 auto;padding:72px 48px 96px}
+.intro{display:grid;grid-template-columns:1fr 340px;gap:48px;align-items:end;margin-bottom:46px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.24em;color:var(--blue);margin-bottom:18px}
+h1{
+  font-family:"Fraunces",serif;font-weight:300;font-size:clamp(54px,8vw,108px);
+  line-height:.92;letter-spacing:0;margin:0;text-wrap:balance;
+}
+h1 em{font-style:italic;color:var(--orange);font-weight:400}
+.sub{color:var(--txt-2);line-height:1.65;font-size:16px;margin:0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.post{
+  border:1px solid var(--line);background:rgba(20,37,64,.72);border-radius:3px;
+  padding:24px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.post .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--cyan)}
+.post h2{font-family:"Fraunces",serif;font-weight:400;font-size:30px;line-height:1.04;margin:18px 0 14px}
+.post p{color:var(--txt-2);line-height:1.55;font-size:14px;margin:0}
+.post .meta{margin-top:28px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3)}
+.note{
+  margin-top:18px;border-top:1px solid var(--line);padding-top:18px;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3);
+  display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
+}
+@media (max-width:860px){
+  .topbar{padding:18px 22px;align-items:flex-start;flex-direction:column}
+  main{padding:52px 22px 72px}
+  .intro,.grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-dot"></span><span>EWO BLOG</span></div>
+  <nav>
+    <a href="../index.html">HOME</a>
+    <a href="../Atmosphere.html">ATMOSPHERE</a>
+    <a href="../Observatory.html">OBSERVATORY</a>
+  </nav>
+</header>
+<main>
+  <section class="intro">
+    <div>
+      <div class="eyebrow">FIELD NOTES / CLIMATE EXPLAINERS / LIVE DATA</div>
+      <h1>Weather, written <em>slowly.</em></h1>
+    </div>
+    <p class="sub">Short editorial notes for the Extreme Weather Observatory: how to read heat, wind, flood signals, and the difference between live weather and climate-scale change.</p>
+  </section>
+  <section class="grid" aria-label="Blog posts">
+    <article class="post">
+      <div>
+        <div class="tag">HEAT</div>
+        <h2>Why heat pockets linger over cities</h2>
+        <p>Concrete, still air, and high-pressure ridges can hold warmth in place long after sunset. The map flags those pockets before they become easy to miss.</p>
+      </div>
+      <div class="meta">EWO NOTE / 04 MIN READ</div>
+    </article>
+    <article class="post">
+      <div>
+        <div class="tag">LIVE WEATHER</div>
+        <h2>What "current" weather really means</h2>
+        <p>Live weather feeds update in intervals. EWO now reads Open-Meteo current observations and refreshes them in the browser every five minutes.</p>
+      </div>
+      <div class="meta">DATA NOTE / UPDATED</div>
+    </article>
+    <article class="post">
+      <div>
+        <div class="tag">WIND</div>
+        <h2>The fan is a small model of relief</h2>
+        <p>The fan interaction is not a forecast. It is a tactile way to compare momentary cooling with the stubborn return of real atmospheric readings.</p>
+      </div>
+      <div class="meta">INTERACTION NOTE / 03 MIN READ</div>
+    </article>
+  </section>
+  <div class="note">
+    <span>STATIC DIRECTORY / BLOG</span>
+    <span>DEPLOYS AT /Blog/</span>
+  </div>
+</main>
+</body>
+</html>

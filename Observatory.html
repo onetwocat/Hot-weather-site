@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EWO · Extreme Weather Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a1628;
+  --bg-2:#0f1d35;
+  --card:#142540;
+  --card-2:#172a4a;
+  --line:#1f3556;
+  --line-2:#2a456e;
+  --txt:#e8edf5;
+  --txt-2:#8a9bb8;
+  --txt-3:#5a6e8c;
+  --blue:#5b9eff;
+  --cyan:#4dd0e1;
+  --orange:#ff8a3d;
+  --red:#ef4444;
+  --purple:#a855f7;
+  --dust:#d4a574;
+  --green:#3ddc97;
+
+  --wind:0;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans",system-ui,sans-serif;}
+body{
+  background:
+    radial-gradient(1200px 800px at 80% -10%, rgba(91,158,255,0.08), transparent 60%),
+    radial-gradient(900px 700px at -10% 60%, rgba(77,208,225,0.05), transparent 60%),
+    var(--bg);
+  overflow-x:hidden;
+  cursor:none;
+}
+@media (pointer:coarse){ body{cursor:auto} .wx-cursor{display:none} }
+
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:"tnum" 1,"zero" 1}
+
+/* ============ Background grid + isobars ============ */
+.bg-grid{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(91,158,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,158,255,0.045) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse at 50% 30%, #000 30%, transparent 90%);
+}
+.bg-isobars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.35;}
+
+/* ============ Wind-driven particles overlay ============ */
+.wind-overlay{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.wind-line{
+  position:absolute;height:1px;background:linear-gradient(90deg, transparent, rgba(91,158,255,0.65), transparent);
+  opacity:0;
+}
+
+/* ============ Custom cursor ============ */
+.wx-cursor{position:fixed;left:0;top:0;width:40px;height:40px;pointer-events:none;z-index:9999;mix-blend-mode:screen;transition:opacity .2s}
+
+/* ============ Top bar ============ */
+.topbar{
+  position:relative;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 36px;border-bottom:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.12em;color:var(--txt-2);
+}
+.topbar .brand{display:flex;align-items:center;gap:14px;color:var(--txt)}
+.brand-mark{
+  width:28px;height:28px;border:1px solid var(--blue);border-radius:50%;
+  display:grid;place-items:center;position:relative;
+}
+.brand-mark::before{
+  content:"";position:absolute;inset:6px;border-radius:50%;
+  background:radial-gradient(circle, var(--blue), transparent 70%);
+  opacity:.8;
+}
+.brand-name{font-weight:600;font-size:13px;letter-spacing:0.18em}
+.topbar nav{display:flex;gap:28px}
+.topbar nav a{color:var(--txt-2);text-decoration:none;transition:color .2s}
+.topbar nav a:hover{color:var(--txt)}
+.topbar .meta{display:flex;gap:24px;align-items:center}
+.topbar .meta .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.4}}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;z-index:4;
+  display:grid;grid-template-columns:1.1fr 1fr;gap:48px;
+  padding:64px 36px 32px;max-width:1600px;margin:0 auto;
+  min-height:calc(100vh - 64px);
+}
+.hero-left{display:flex;flex-direction:column;justify-content:center;gap:32px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.22em;color:var(--blue);
+  border:1px solid var(--line-2);padding:6px 12px;border-radius:2px;width:max-content;
+  background:rgba(91,158,255,0.04);
+}
+.eyebrow .bar{width:18px;height:1px;background:var(--blue)}
+.hero h1{
+  font-size:clamp(48px, 6vw, 88px);line-height:0.95;letter-spacing:-0.03em;
+  margin:0;font-weight:600;
+}
+.hero h1 .accent{color:var(--orange);font-style:italic;font-weight:400}
+.hero h1 .stroke{
+  -webkit-text-stroke:1px var(--txt);color:transparent;font-weight:500;
+}
+.hero-sub{
+  max-width:540px;color:var(--txt-2);font-size:18px;line-height:1.55;text-wrap:pretty;
+}
+.hero-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  border-top:1px solid var(--line);padding-top:24px;max-width:580px;
+}
+.hero-stats .s-k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--txt-3)}
+.hero-stats .s-v{font-family:"IBM Plex Mono",monospace;font-size:28px;color:var(--txt);margin-top:6px;font-weight:500}
+.hero-stats .s-v.warn{color:var(--orange)}
+.hero-stats .s-v.alert{color:var(--red)}
+
+.hero-right{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+
+/* ============ Fan ============ */
+.fw-wrap{display:flex;flex-direction:column;align-items:center;gap:32px;position:relative}
+.fw-fan{position:relative;filter:drop-shadow(0 30px 60px rgba(0,0,0,0.5))}
+.fw-fan-svg{display:block}
+.fw-blades{transition:transform 0s linear;will-change:transform}
+.fw-base{display:flex;flex-direction:column;align-items:center;margin-top:-8px}
+.fw-base-stem{width:6px;height:34px;background:linear-gradient(180deg, rgba(248,250,255,0.85), rgba(248,250,255,0.55));}
+.fw-base-foot{
+  width:120px;height:14px;border-radius:8px 8px 4px 4px;
+  background:linear-gradient(180deg, rgba(248,250,255,0.85), rgba(248,250,255,0.4));
+  margin-top:-2px;box-shadow:0 8px 18px rgba(0,0,0,0.4);
+}
+
+/* control panel */
+.fw-control{
+  display:grid;grid-template-columns:auto auto auto;gap:36px;align-items:center;
+  padding:18px 28px;border:1px solid var(--line);background:rgba(20,37,64,0.6);
+  backdrop-filter:blur(8px);
+}
+.fw-control-label{display:flex;align-items:center;gap:10px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.22em;color:var(--txt-2)}
+.fw-led{width:8px;height:8px;border-radius:50%;background:#3a3a3a;box-shadow:inset 0 0 2px rgba(0,0,0,.5)}
+.fw-led[data-on="true"]{background:var(--red);box-shadow:0 0 10px var(--red), 0 0 22px var(--red)}
+
+.fw-btn{
+  position:relative;width:70px;height:70px;border-radius:50%;border:none;background:transparent;
+  cursor:none;padding:0;outline:none;
+}
+.fw-btn-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  background:linear-gradient(180deg, #2a3550, #0c1626);
+  box-shadow:0 4px 0 #06101e, inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.fw-btn-cap{
+  position:absolute;inset:4px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #ff5b5b, #b71c1c 60%, #6e0000);
+  box-shadow:
+    inset 0 -8px 16px rgba(0,0,0,0.45),
+    inset 0 2px 4px rgba(255,255,255,0.25),
+    0 4px 12px rgba(220,38,38,0.25);
+  transform:translateY(-2px);
+  transition:transform .12s ease, box-shadow .2s ease, filter .2s ease;
+}
+.fw-btn-gloss{
+  position:absolute;left:14px;top:10px;width:26px;height:12px;border-radius:50%;
+  background:radial-gradient(ellipse, rgba(255,255,255,0.55), transparent 70%);
+  pointer-events:none;
+  transform:translateY(-2px);
+  transition:transform .12s ease;
+}
+.fw-btn:hover .fw-btn-cap{filter:brightness(1.08)}
+.fw-btn.is-on .fw-btn-cap{
+  transform:translateY(1px);
+  background:radial-gradient(circle at 35% 30%, #ff8a8a, #ff2a2a 50%, #d10000);
+  box-shadow:
+    inset 0 -6px 14px rgba(0,0,0,0.35),
+    inset 0 2px 4px rgba(255,255,255,0.4),
+    0 0 24px rgba(255,80,80,0.7),
+    0 0 60px rgba(255,80,80,0.4);
+}
+.fw-btn.is-on .fw-btn-gloss{transform:translateY(1px)}
+.fw-meta{display:flex;flex-direction:column;gap:4px;font-family:"IBM Plex Mono",monospace}
+.fw-meta-k{font-size:9px;letter-spacing:0.2em;color:var(--txt-3)}
+.fw-meta-v{font-size:13px;color:var(--txt);letter-spacing:0.1em}
+
+/* fan readout ring labels */
+.fan-readouts{
+  position:absolute;inset:0;pointer-events:none;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.2em;color:var(--txt-3);
+}
+.fan-readouts span{position:absolute}
+.fan-readouts .r-tl{top:-6px;left:-4px}
+.fan-readouts .r-tr{top:-6px;right:-4px;text-align:right}
+.fan-readouts .r-bl{bottom:60px;left:-4px}
+.fan-readouts .r-br{bottom:60px;right:-4px;text-align:right}
+.fan-readouts b{display:block;color:var(--blue);font-weight:400;margin-top:2px}
+
+/* corner crosshairs around hero-right */
+.crosshair{position:absolute;width:14px;height:14px;border:1px solid var(--line-2);}
+.crosshair.tl{top:0;left:0;border-right:0;border-bottom:0}
+.crosshair.tr{top:0;right:0;border-left:0;border-bottom:0}
+.crosshair.bl{bottom:0;left:0;border-right:0;border-top:0}
+.crosshair.br{bottom:0;right:0;border-left:0;border-top:0}
+
+/* ============ Ticker ============ */
+.ticker{
+  position:relative;z-index:5;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(91,158,255,0.04), rgba(91,158,255,0));
+  overflow:hidden;
+}
+.ticker-inner{
+  display:flex;gap:48px;padding:14px 0;white-space:nowrap;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:0.1em;color:var(--txt-2);
+  animation:scroll 60s linear infinite;
+}
+.ticker:hover .ticker-inner{animation-play-state:paused}
+@keyframes scroll{to{transform:translateX(-50%)}}
+.ticker-item{display:inline-flex;align-items:center;gap:10px}
+.ticker-item .tag{color:var(--orange);font-weight:600}
+.ticker-item .tag.flood{color:var(--blue)}
+.ticker-item .tag.storm{color:var(--purple)}
+.ticker-item .tag.cold{color:var(--cyan)}
+.ticker-item .tag.dust{color:var(--dust)}
+.ticker-sep{color:var(--txt-3)}
+
+/* ============ Section header ============ */
+section{position:relative;z-index:4}
+.section-head{
+  display:flex;justify-content:space-between;align-items:end;
+  padding:80px 36px 28px;max-width:1600px;margin:0 auto;border-bottom:1px solid var(--line);
+}
+.section-head .num{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--blue);letter-spacing:0.2em}
+.section-head h2{font-size:36px;font-weight:500;margin:8px 0 0;letter-spacing:-0.02em}
+.section-head .right{text-align:right;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--txt-3);letter-spacing:0.16em}
+
+/* ============ Global Grid ============ */
+.region-bar{
+  display:flex;gap:0;padding:24px 36px 0;max-width:1600px;margin:0 auto;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.18em;
+}
+.region-bar button{
+  background:transparent;border:1px solid var(--line);color:var(--txt-2);
+  padding:10px 18px;cursor:none;letter-spacing:inherit;font:inherit;
+  border-right:0;
+}
+.region-bar button:last-child{border-right:1px solid var(--line)}
+.region-bar button.active{background:rgba(91,158,255,0.1);color:var(--blue);border-color:var(--blue)}
+.region-bar button:hover{color:var(--txt)}
+
+.cards{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  padding:24px 36px 0;max-width:1600px;margin:0 auto;
+}
+.card{
+  position:relative;background:linear-gradient(180deg, var(--card), var(--card-2));
+  border:1px solid var(--line);padding:20px;min-height:200px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transition:border-color .3s, transform .3s;
+}
+.card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.card-head{display:flex;justify-content:space-between;align-items:start}
+.card .city{font-size:20px;font-weight:500;letter-spacing:-0.01em;line-height:1}
+.card .country{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--txt-3);letter-spacing:0.18em;margin-top:6px}
+.card .alert-pill{
+  font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:0.18em;
+  padding:4px 8px;border:1px solid currentColor;border-radius:1px;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.card .alert-pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite}
+.card .temp{
+  font-family:"IBM Plex Mono",monospace;font-size:56px;font-weight:300;line-height:1;letter-spacing:-0.02em;
+  margin-top:18px;
+}
+.card .temp sup{font-size:18px;font-weight:400;color:var(--txt-2);margin-left:2px;vertical-align:top;top:0.5em;position:relative}
+.card .cond{font-size:13px;color:var(--txt-2);margin-top:4px}
+.card .grid-vals{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;
+  border-top:1px solid var(--line);padding-top:12px;
+}
+.card .grid-vals div{display:flex;flex-direction:column;gap:2px}
+.card .gv-k{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:0.16em;color:var(--txt-3)}
+.card .gv-v{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--txt)}
+
+/* ============ Charts section ============ */
+.charts{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:16px;
+  padding:24px 36px 0;max-width:1600px;margin:0 auto;
+}
+.chart-card{
+  background:var(--card);border:1px solid var(--line);padding:24px;
+  display:flex;flex-direction:column;
+}
+.chart-card.dual{display:grid;grid-template-rows:1fr 1fr;gap:16px;padding:0;background:transparent;border:0}
+.chart-card.dual > div{background:var(--card);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column}
+.chart-card h3{font-size:16px;font-weight:500;margin:0;letter-spacing:-0.01em}
+.chart-card .sub{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--txt-3);margin-top:4px}
+.chart-card .big{font-family:"IBM Plex Mono",monospace;font-size:42px;font-weight:300;color:var(--orange);margin-top:8px;letter-spacing:-0.02em}
+.chart-card .big.blue{color:var(--blue)}
+.chart-card .big.cyan{color:var(--cyan)}
+.chart-card svg{margin-top:12px;width:100%;display:block;flex:1}
+.chart-card .legend{display:flex;gap:16px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.14em;color:var(--txt-3);margin-top:8px}
+.chart-card .legend span::before{content:"";display:inline-block;width:10px;height:2px;background:currentColor;margin-right:6px;vertical-align:middle}
+
+/* ============ Map ============ */
+.map-wrap{
+  padding:24px 36px 0;max-width:1600px;margin:0 auto;
+}
+.map-card{
+  background:var(--card);border:1px solid var(--line);padding:24px;position:relative;
+}
+.map-svg{width:100%;height:auto;display:block}
+.map-legend{
+  display:flex;gap:24px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.16em;color:var(--txt-2);
+  border-top:1px solid var(--line);padding-top:14px;margin-top:18px;flex-wrap:wrap;
+}
+.map-legend .lg{display:flex;align-items:center;gap:8px}
+.map-legend .lg .sw{width:10px;height:10px;border-radius:50%}
+.alert-marker{cursor:none}
+.alert-marker .pulse{transform-origin:center;transform-box:fill-box;animation:ping 2.4s infinite}
+@keyframes ping{0%{r:6;opacity:.7}80%,100%{r:22;opacity:0}}
+
+/* ============ Knowledge ============ */
+.know{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  padding:24px 36px 0;max-width:1600px;margin:0 auto;
+}
+.know-card{
+  background:var(--card);border:1px solid var(--line);padding:24px;
+  display:flex;flex-direction:column;gap:16px;min-height:280px;
+}
+.know-card .ktag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.22em;color:var(--blue)}
+.know-card h4{font-size:18px;font-weight:500;margin:0;line-height:1.3;letter-spacing:-0.01em}
+.know-card p{color:var(--txt-2);font-size:13px;line-height:1.55;margin:0;text-wrap:pretty;flex:1}
+.know-card .kstat{display:flex;align-items:baseline;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.know-card .kstat .v{font-family:"IBM Plex Mono",monospace;font-size:28px;color:var(--orange);font-weight:300;letter-spacing:-0.02em}
+.know-card .kstat .l{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.16em;color:var(--txt-3)}
+
+/* ============ Footer ============ */
+footer{
+  margin-top:80px;border-top:1px solid var(--line);padding:36px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.16em;color:var(--txt-3);
+  max-width:1600px;margin-left:auto;margin-right:auto;
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 1100px){
+  .hero{grid-template-columns:1fr;padding-top:40px}
+  .hero-right{margin-top:40px}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .charts{grid-template-columns:1fr}
+  .know{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width: 640px){
+  .topbar{padding:14px 18px;gap:12px;flex-wrap:wrap}
+  .topbar nav{display:none}
+  .hero{padding:24px 18px}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .cards,.know{grid-template-columns:1fr;padding-left:18px;padding-right:18px}
+  .section-head{padding-left:18px;padding-right:18px}
+  .map-wrap,.charts,.region-bar{padding-left:18px;padding-right:18px}
+  .fw-control{grid-template-columns:auto auto;gap:20px;padding:14px 18px}
+  .fw-meta{display:none}
+  footer{flex-direction:column;gap:14px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-grid"></div>
+<svg class="bg-isobars" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <radialGradient id="lowP" cx="20%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#5b9eff" stop-opacity="0.0"/>
+      <stop offset="100%" stop-color="#5b9eff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g fill="none" stroke="#5b9eff" stroke-width="0.6" opacity="0.6">
+    <ellipse cx="320"  cy="380" rx="80"  ry="60"/>
+    <ellipse cx="320"  cy="380" rx="140" ry="100"/>
+    <ellipse cx="320"  cy="380" rx="210" ry="150"/>
+    <ellipse cx="320"  cy="380" rx="290" ry="210"/>
+    <ellipse cx="320"  cy="380" rx="380" ry="280"/>
+  </g>
+  <g fill="none" stroke="#ff8a3d" stroke-width="0.5" opacity="0.4">
+    <ellipse cx="1280" cy="620" rx="60"  ry="40"/>
+    <ellipse cx="1280" cy="620" rx="120" ry="80"/>
+    <ellipse cx="1280" cy="620" rx="200" ry="140"/>
+    <ellipse cx="1280" cy="620" rx="290" ry="200"/>
+  </g>
+</svg>
+
+<!-- Wind-line overlay -->
+<div class="wind-overlay" id="windOverlay"></div>
+
+<!-- Top bar -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div>
+      <div class="brand-name">EWO · OBSERVATORY</div>
+      <div style="font-size:9px;color:var(--txt-3);margin-top:2px;letter-spacing:0.22em">EXTREME WEATHER OBSERVATORY</div>
+    </div>
+  </div>
+  <nav>
+    <a href="#live">LIVE</a>
+    <a href="#climate">CLIMATE</a>
+    <a href="#alerts">ALERTS</a>
+    <a href="#field">FIELD NOTES</a>
+    <a href="Blog/">BLOG</a>
+    <a href="Atmosphere.html">VIEW · ATMOSPHERE →</a>
+  </nav>
+  <div class="meta">
+    <span><span class="dot"></span>FEED ONLINE</span>
+    <span id="utcClock">— UTC</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <span class="eyebrow"><span class="bar"></span>BULLETIN · 30 JUN 2026 · 06:00Z</span>
+    <h1>
+      The atmosphere<br/>
+      is running a <span class="accent">fever.</span><br/>
+      <span class="stroke">Switch it on.</span>
+    </h1>
+    <p class="hero-sub">
+      A live ground-truth feed of extreme weather across Europe, India, and North America.
+      Heatwaves, cyclones, floods, dust, deep cold — recorded, visualised, and contextualised
+      against forty-six years of climate baseline drift.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <div class="s-k">CITIES TRACKED</div>
+        <div class="s-v mono" id="stCities">19</div>
+      </div>
+      <div>
+        <div class="s-k">ACTIVE ALERTS</div>
+        <div class="s-v mono alert" id="stAlerts">—</div>
+      </div>
+      <div>
+        <div class="s-k">GLOBAL ANOMALY</div>
+        <div class="s-v mono warn">+1.36°C</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="crosshair tl"></div><div class="crosshair tr"></div>
+    <div class="crosshair bl"></div><div class="crosshair br"></div>
+
+    <div id="fanHost"></div>
+
+    <div class="fan-readouts">
+      <span class="r-tl">RPM<b id="roRpm" class="mono">000</b></span>
+      <span class="r-tr">FLOW<b id="roFlow" class="mono">0.0 m/s</b></span>
+      <span class="r-bl">PWR<b id="roPwr" class="mono">0 W</b></span>
+      <span class="r-br">MODE<b id="roMode" class="mono">STANDBY</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- Ticker -->
+<div class="ticker" id="ticker"><div class="ticker-inner" id="tickerInner"></div></div>
+
+<!-- LIVE GRID -->
+<section id="live">
+  <div class="section-head">
+    <div>
+      <div class="num">/01 — LIVE OBSERVATIONS</div>
+      <h2>Ground readings, refreshed continuously</h2>
+    </div>
+    <div class="right">SOURCE · MOCK FEED<br/>STATIONS · 19 ACTIVE</div>
+  </div>
+
+  <div class="region-bar" id="regionBar">
+    <button data-r="ALL" class="active">ALL · 19</button>
+    <button data-r="EU">EUROPE · 7</button>
+    <button data-r="IN">INDIA · 5</button>
+    <button data-r="NA">NORTH AMERICA · 7</button>
+  </div>
+
+  <div class="cards" id="cardGrid"></div>
+</section>
+
+<!-- CLIMATE CHARTS -->
+<section id="climate">
+  <div class="section-head">
+    <div>
+      <div class="num">/02 — CLIMATE BASELINE DRIFT</div>
+      <h2>Forty-six years of atmospheric record</h2>
+    </div>
+    <div class="right">BASELINE · 1951–1980<br/>UPDATED · 30 JUN 2026</div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Global surface temperature anomaly</h3>
+      <div class="sub">°C VS 1951–1980 BASELINE · ANNUAL MEAN</div>
+      <div class="big">+1.36°C <span style="font-size:14px;color:var(--txt-3);letter-spacing:0.18em">2026 YTD</span></div>
+      <svg id="chTemp" viewBox="0 0 600 220" preserveAspectRatio="none"></svg>
+      <div class="legend"><span style="color:var(--orange)">ANOMALY</span><span style="color:var(--txt-3)">BASELINE</span></div>
+    </div>
+
+    <div class="chart-card dual">
+      <div>
+        <h3>Atmospheric CO₂</h3>
+        <div class="sub">PARTS PER MILLION · MAUNA LOA</div>
+        <div class="big blue">430<span style="font-size:18px;color:var(--txt-2);letter-spacing:0">ppm</span></div>
+        <svg id="chCO2" viewBox="0 0 400 110" preserveAspectRatio="none"></svg>
+      </div>
+      <div>
+        <h3>Arctic sea ice minimum</h3>
+        <div class="sub">SEPTEMBER · MILLION KM²</div>
+        <div class="big cyan">3.81<span style="font-size:18px;color:var(--txt-2);letter-spacing:0"> Mkm²</span></div>
+        <svg id="chIce" viewBox="0 0 400 110" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- billion-dollar disaster bars -->
+  <div class="charts" style="grid-template-columns:1fr;margin-top:16px">
+    <div class="chart-card">
+      <h3>Billion-dollar weather disasters · United States</h3>
+      <div class="sub">COUNT PER YEAR · NOAA-CLASS · ANNUAL TOTAL</div>
+      <svg id="chBars" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg>
+      <div class="legend"><span style="color:var(--red)">DISASTERS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ALERT MAP -->
+<section id="alerts">
+  <div class="section-head">
+    <div>
+      <div class="num">/03 — ACTIVE ALERT MAP</div>
+      <h2>Where the atmosphere is breaking records, right now</h2>
+    </div>
+    <div class="right">PROJECTION · EQUIRECTANGULAR<br/>UPDATED · LIVE</div>
+  </div>
+  <div class="map-wrap">
+    <div class="map-card">
+      <svg class="map-svg" id="mapSvg" viewBox="0 0 1000 500"></svg>
+      <div class="map-legend">
+        <div class="lg"><span class="sw" style="background:#ff8a3d"></span>EXTREME HEAT</div>
+        <div class="lg"><span class="sw" style="background:#5b9eff"></span>FLOODING</div>
+        <div class="lg"><span class="sw" style="background:#a855f7"></span>TROPICAL STORM</div>
+        <div class="lg"><span class="sw" style="background:#d4a574"></span>DUST STORM</div>
+        <div class="lg"><span class="sw" style="background:#4dd0e1"></span>EXTREME COLD</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KNOWLEDGE -->
+<section id="field">
+  <div class="section-head">
+    <div>
+      <div class="num">/04 — FIELD NOTES</div>
+      <h2>What the data means</h2>
+    </div>
+    <div class="right">EDITORIAL · EWO DESK<br/>RUN · ROLLING</div>
+  </div>
+  <div class="know" id="knowGrid"></div>
+</section>
+
+<footer>
+  <div>EWO · EXTREME WEATHER OBSERVATORY · 2026</div>
+  <div>MOCK FEED · API HOOK READY · OPEN-METEO COMPATIBLE</div>
+  <div>v 1.0.3 — OBSERVATORY</div>
+</footer>
+
+<script src="weather-data.js"></script>
+<script src="fan-wind.js"></script>
+<script>
+/* ===== UTC clock ===== */
+let liveWeatherStatus = "SYNCING";
+function tickClock(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  document.getElementById("utcClock").textContent =
+    `${liveWeatherStatus} / ${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+}
+tickClock(); setInterval(tickClock, 1000);
+
+/* ===== Mount fan ===== */
+FanWind.mount(document.getElementById("fanHost"), { size: 360, label: "POWER · MAIN" });
+
+/* ===== Fan readouts ===== */
+const roRpm = document.getElementById("roRpm");
+const roFlow= document.getElementById("roFlow");
+const roPwr = document.getElementById("roPwr");
+const roMode= document.getElementById("roMode");
+FanWind.onChange((s, on) => {
+  roRpm.textContent  = String(Math.round(s * 1440)).padStart(3,"0");
+  roFlow.textContent = (s * 4.2).toFixed(1) + " m/s";
+  roPwr.textContent  = Math.round(s * 84) + " W";
+  roMode.textContent = on ? "ACTIVE" : "STANDBY";
+});
+
+/* ===== Active alerts count ===== */
+let all = WeatherData.getAll();
+document.getElementById("stAlerts").textContent = all.filter(c => c.alert).length;
+
+/* ===== Build ticker ===== */
+function tickerLine(c){
+  const tagClass = c.alert ? c.alert.toLowerCase() : "";
+  const tagText  = c.alert ? c.alertMeta.short : "NORMAL";
+  return `<div class="ticker-item">
+    <span class="tag ${tagClass}">${tagText}</span>
+    <span>${c.name.toUpperCase()}</span>
+    <span class="mono">${c.temp}°C</span>
+    <span class="mono" style="color:var(--txt-3)">RH ${c.hum}%</span>
+    <span class="mono" style="color:var(--txt-3)">WIND ${c.wind} km/h</span>
+    <span class="ticker-sep">·</span>
+  </div>`;
+}
+function renderTicker(){
+  const tickerHTML = all.map(tickerLine).join("");
+  document.getElementById("tickerInner").innerHTML = tickerHTML + tickerHTML;
+}
+renderTicker();
+
+/* ===== Build city cards ===== */
+function cardHTML(c){
+  const a = c.alertMeta;
+  const pill = a
+    ? `<span class="alert-pill" style="color:${a.color}">${a.short}</span>`
+    : `<span class="alert-pill" style="color:var(--txt-3);border-color:var(--line)">NORMAL</span>`;
+  return `<article class="card" data-city="${c.id}" data-region="${c.region}">
+    <div>
+      <div class="card-head">
+        <div>
+          <div class="city">${c.name}</div>
+          <div class="country mono">${c.country} · ${c.lat.toFixed(2)}°, ${c.lon.toFixed(2)}°</div>
+        </div>
+        ${pill}
+      </div>
+      <div class="temp mono">${c.temp}<sup>°C</sup></div>
+      <div class="cond">${c.conditionLabel}</div>
+    </div>
+    <div class="grid-vals">
+      <div><span class="gv-k">HUM</span><span class="gv-v">${c.hum}%</span></div>
+      <div><span class="gv-k">WIND</span><span class="gv-v">${c.wind}</span></div>
+      <div><span class="gv-k">PRESS</span><span class="gv-v">${c.press}</span></div>
+    </div>
+  </article>`;
+}
+
+const grid = document.getElementById("cardGrid");
+let currentRegion = "ALL";
+function renderCards(region){
+  currentRegion = region;
+  const list = region === "ALL" ? all : all.filter(c => c.region === region);
+  grid.innerHTML = list.map(cardHTML).join("");
+  // wire drift on each card
+  [...grid.querySelectorAll(".card")].forEach((el, i) => FanWind.applyDrift(el, 0.4 + (i % 5) * 0.18));
+}
+renderCards("ALL");
+
+document.getElementById("regionBar").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  document.querySelectorAll("#regionBar button").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  renderCards(b.dataset.r);
+});
+
+async function refreshLiveWeather(){
+  if (!WeatherData.getAllLive) return;
+  try {
+    const live = (await WeatherData.getAllLive()).filter(Boolean);
+    if (!live.length) return;
+    all = live;
+    const liveCount = all.filter(c => c.isLive).length;
+    const latest = all.find(c => c.observedAt)?.observedAt;
+    liveWeatherStatus = latest ? `LIVE ${liveCount}/${all.length} OBS ${latest}` : `LIVE ${liveCount}/${all.length}`;
+    document.getElementById("stAlerts").textContent = all.filter(c => c.alert).length;
+    renderTicker();
+    renderCards(currentRegion);
+  } catch (err) {
+    liveWeatherStatus = "LOCAL FALLBACK";
+  }
+  tickClock();
+}
+refreshLiveWeather();
+setInterval(refreshLiveWeather, 5 * 60 * 1000);
+
+/* ===== Drift: hero, knowledge, ticker subtly ===== */
+document.querySelectorAll(".hero h1, .hero-sub, .know-card, .chart-card").forEach((el, i) => {
+  FanWind.applyDrift(el, 0.2 + (i % 4) * 0.15);
+});
+
+/* ===== Charts ===== */
+function linePath(data, w, h, padX=10, padY=10, getY){
+  const xs = data.map(d => d.y);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const vals = data.map(getY);
+  const vMin = Math.min(...vals), vMax = Math.max(...vals);
+  const xScale = v => padX + (v - xMin) / (xMax - xMin) * (w - padX*2);
+  const yScale = v => h - padY - (v - vMin) / (vMax - vMin) * (h - padY*2);
+  let d = "";
+  data.forEach((p, i) => {
+    const x = xScale(p.y), y = yScale(getY(p));
+    d += (i ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1);
+  });
+  return { d, xScale, yScale, vMin, vMax, xMin, xMax };
+}
+
+function drawArea(svg, data, color, getY){
+  const w = svg.viewBox.baseVal.width, h = svg.viewBox.baseVal.height;
+  const padX = 30, padY = 18;
+  const { d, xScale, yScale, vMin, vMax, xMin, xMax } = linePath(data, w, h, padX, padY, getY);
+
+  const last = data[data.length-1];
+  const first = data[0];
+  const areaD = d + `L${xScale(last.y).toFixed(1)},${(h-padY).toFixed(1)} L${xScale(first.y).toFixed(1)},${(h-padY).toFixed(1)} Z`;
+
+  // gridlines
+  let grid = "";
+  for (let i = 0; i <= 4; i++){
+    const y = padY + (h - padY*2) * i / 4;
+    grid += `<line x1="${padX}" y1="${y}" x2="${w-padX}" y2="${y}" stroke="rgba(91,158,255,0.08)" stroke-width="0.6"/>`;
+  }
+
+  // x labels
+  let xl = "";
+  data.filter((_,i) => i === 0 || i === data.length-1 || i === Math.floor(data.length/2)).forEach(p => {
+    xl += `<text x="${xScale(p.y).toFixed(1)}" y="${(h-4).toFixed(1)}" fill="#5a6e8c" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" text-anchor="middle">${p.y}</text>`;
+  });
+  // y labels
+  let yl = "";
+  for (let i = 0; i <= 2; i++){
+    const v = vMin + (vMax - vMin) * (1 - i / 2);
+    const y = padY + (h - padY*2) * i / 2;
+    yl += `<text x="${padX-4}" y="${y+3}" fill="#5a6e8c" font-family="IBM Plex Mono" font-size="9" text-anchor="end">${v.toFixed(2)}</text>`;
+  }
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="g_${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="${color}" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${grid}
+    <path d="${areaD}" fill="url(#g_${color.replace('#','')})"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round"/>
+    <circle cx="${xScale(last.y).toFixed(1)}" cy="${yScale(getY(last)).toFixed(1)}" r="3" fill="${color}"/>
+    <circle cx="${xScale(last.y).toFixed(1)}" cy="${yScale(getY(last)).toFixed(1)}" r="6" fill="${color}" opacity="0.25"/>
+    ${xl}${yl}
+  `;
+}
+
+drawArea(document.getElementById("chTemp"), WeatherData.TEMP_ANOMALY, "#ff8a3d", d => d.v);
+drawArea(document.getElementById("chCO2"),  WeatherData.CO2,           "#5b9eff", d => d.v);
+drawArea(document.getElementById("chIce"),  WeatherData.SEA_ICE,       "#4dd0e1", d => d.v);
+
+// Bars
+(function drawBars(){
+  const svg = document.getElementById("chBars");
+  const data = WeatherData.DISASTERS;
+  const w = 1000, h = 180, padX = 30, padY = 24;
+  const vMax = Math.max(...data.map(d => d.v));
+  const bw = (w - padX*2) / data.length * 0.6;
+  const step = (w - padX*2) / data.length;
+  let html = "";
+  // gridlines
+  for (let i = 0; i <= 4; i++){
+    const y = padY + (h - padY*2) * i / 4;
+    html += `<line x1="${padX}" y1="${y}" x2="${w-padX}" y2="${y}" stroke="rgba(91,158,255,0.08)" stroke-width="0.6"/>`;
+  }
+  data.forEach((d, i) => {
+    const x = padX + step * i + (step - bw)/2;
+    const bh = (d.v / vMax) * (h - padY*2);
+    const y = h - padY - bh;
+    const intense = d.v / vMax;
+    const col = intense > 0.7 ? "#ef4444" : intense > 0.45 ? "#ff8a3d" : "#5b9eff";
+    html += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" opacity="${0.55 + intense*0.45}"/>`;
+    html += `<text x="${x + bw/2}" y="${y - 4}" fill="${col}" font-family="IBM Plex Mono" font-size="9" text-anchor="middle">${d.v}</text>`;
+    html += `<text x="${x + bw/2}" y="${h - 8}" fill="#5a6e8c" font-family="IBM Plex Mono" font-size="9" text-anchor="middle">${d.y}</text>`;
+  });
+  svg.innerHTML = html;
+})();
+
+/* ===== Alert map (equirectangular projection) ===== */
+(function buildMap(){
+  const svg = document.getElementById("mapSvg");
+  const W = 1000, H = 500;
+  // project lat/lon to x/y
+  function proj(lat, lon){
+    const x = (lon + 180) / 360 * W;
+    const y = (90 - lat) / 180 * H;
+    return [x, y];
+  }
+  // Very simplified landmass blobs (decorative — not geographically precise)
+  const land = `
+    <!-- North America -->
+    <path d="M 80 90 Q 160 70 230 110 Q 280 130 270 200 Q 250 240 200 260 Q 150 280 110 250 Q 70 220 70 170 Z" fill="#1f3556" opacity="0.55"/>
+    <path d="M 230 110 Q 290 100 320 150 Q 310 200 280 200 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- Greenland -->
+    <path d="M 330 70 Q 360 60 360 110 Q 340 120 320 100 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- South America -->
+    <path d="M 260 280 Q 290 290 290 360 Q 280 430 250 440 Q 230 410 240 350 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- Europe -->
+    <path d="M 470 110 Q 530 90 560 130 Q 540 170 500 170 Q 460 160 470 130 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- Africa -->
+    <path d="M 490 180 Q 560 180 580 250 Q 560 340 510 360 Q 470 320 470 250 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- Asia -->
+    <path d="M 560 100 Q 740 90 820 140 Q 850 200 780 230 Q 700 240 620 220 Q 560 190 560 140 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- India peninsula -->
+    <path d="M 700 230 Q 720 230 720 280 Q 710 300 695 290 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- SE Asia / Indonesia -->
+    <path d="M 780 250 Q 830 260 830 290 Q 800 300 770 280 Z" fill="#1f3556" opacity="0.55"/>
+    <!-- Australia -->
+    <path d="M 830 340 Q 900 330 920 370 Q 890 400 840 390 Q 820 370 830 350 Z" fill="#1f3556" opacity="0.55"/>
+  `;
+
+  // grid lines
+  let grid = "";
+  for (let lon = -180; lon <= 180; lon += 30){
+    const x = (lon+180)/360 * W;
+    grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(91,158,255,0.06)" stroke-width="0.6"/>`;
+  }
+  for (let lat = -90; lat <= 90; lat += 30){
+    const y = (90-lat)/180 * H;
+    grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(91,158,255,0.06)" stroke-width="0.6"/>`;
+  }
+  // equator emphasised
+  grid += `<line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(91,158,255,0.18)" stroke-width="0.8" stroke-dasharray="2 4"/>`;
+
+  // markers for alert cities
+  let markers = "";
+  all.forEach(c => {
+    if (!c.alert) return;
+    const [x, y] = proj(c.lat, c.lon);
+    const col = c.alertMeta.color;
+    markers += `
+      <g class="alert-marker" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
+        <circle class="pulse" r="6" fill="${col}" opacity="0.4"/>
+        <circle r="4" fill="${col}"/>
+        <circle r="2" fill="white"/>
+        <text x="8" y="3" fill="${col}" font-family="IBM Plex Mono" font-size="9" letter-spacing="1">${c.name.toUpperCase()}</text>
+        <text x="8" y="14" fill="#8a9bb8" font-family="IBM Plex Mono" font-size="8">${c.alertMeta.short} · ${c.temp}°C</text>
+      </g>
+    `;
+  });
+
+  // station ticks for non-alert
+  let ticks = "";
+  all.forEach(c => {
+    if (c.alert) return;
+    const [x, y] = proj(c.lat, c.lon);
+    ticks += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="#5b9eff" opacity="0.55"/>`;
+  });
+
+  svg.innerHTML = grid + land + ticks + markers;
+})();
+
+/* ===== Knowledge cards ===== */
+(function buildKnow(){
+  const host = document.getElementById("knowGrid");
+  host.innerHTML = WeatherData.KNOWLEDGE.map(k => `
+    <article class="know-card">
+      <div class="ktag">${k.tag}</div>
+      <h4>${k.title}</h4>
+      <p>${k.body}</p>
+      <div class="kstat">
+        <span class="v">${k.stat}</span>
+        <span class="l">${k.statLabel.toUpperCase()}</span>
+      </div>
+    </article>
+  `).join("");
+})();
+
+/* ===== Wind-line particles ===== */
+(function windParticles(){
+  const layer = document.getElementById("windOverlay");
+  const N = 18;
+  const lines = [];
+  for (let i = 0; i < N; i++){
+    const el = document.createElement("div");
+    el.className = "wind-line";
+    layer.appendChild(el);
+    lines.push({ el, x: Math.random()*innerWidth, y: Math.random()*innerHeight, len: 60 + Math.random()*120, sp: 0 });
+  }
+  function tick(){
+    const w = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--wind")) || 0;
+    lines.forEach(l => {
+      l.x += (1 + l.sp) * (2 + w * 14);
+      if (l.x > innerWidth + 100){
+        l.x = -l.len;
+        l.y = Math.random()*innerHeight;
+        l.len = 60 + Math.random()*140;
+        l.sp = Math.random()*1.4;
+      }
+      l.el.style.left = l.x + "px";
+      l.el.style.top  = l.y + "px";
+      l.el.style.width = l.len + "px";
+      l.el.style.opacity = (0.05 + w * 0.55).toFixed(2);
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

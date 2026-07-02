@@ -1,0 +1,1375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EWO · A breeze for the world</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0b1a30;
+  --bg-warm:#1a1e35;
+  --card:rgba(20, 41, 74, 0.55);
+  --card-warm:rgba(58, 32, 36, 0.55);
+  --line:rgba(180, 210, 255, 0.12);
+  --line-2:rgba(180, 210, 255, 0.22);
+  --txt:#eef3fb;
+  --txt-2:#a4b6d4;
+  --txt-3:#6f83a4;
+  --blue:#7ab6ff;
+  --cyan:#5fdce0;
+  --ice:#cfe9ff;
+  --orange:#ff9a4d;
+  --red:#ff5757;
+  --hot:#ff6b3d;
+  --purple:#b67aff;
+  --dust:#d4a574;
+  --wind:0;        /* set by FanWind */
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans",system-ui,sans-serif;overflow-x:hidden}
+
+/* When wind is on, body tint cools slightly */
+body{
+  background:
+    radial-gradient(1400px 900px at 30% -10%, rgba(255,107,61,0.10), transparent 60%),
+    radial-gradient(1200px 800px at 80% 20%, rgba(122,182,255,0.10), transparent 60%),
+    var(--bg);
+  transition: background 1.2s ease;
+}
+body.is-cool{
+  background:
+    radial-gradient(1400px 900px at 30% -10%, rgba(122,182,255,0.16), transparent 60%),
+    radial-gradient(1200px 800px at 80% 20%, rgba(95,220,224,0.10), transparent 60%),
+    #0b1d33;
+}
+/* L3 storm mode: stronger ambient accent on the hero-left card border */
+body[data-fan-level="3"] .hero-left{
+  border-color:rgba(122,182,255,0.45);
+}
+body[data-fan-level="3"] .fan-stage::after{
+  background:linear-gradient(90deg, transparent, rgba(122,182,255,0.55) 25%, rgba(95,220,224,0.55) 75%, transparent);
+  height:2px;
+}
+
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:"tnum" 1}
+.serif{font-family:"Fraunces",Georgia,serif;font-optical-sizing:auto}
+
+/* ===== Top bar ===== */
+.topbar{
+  position:relative;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 48px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.18em;color:var(--txt-2);
+}
+.brand{display:flex;align-items:center;gap:14px;color:var(--txt)}
+.brand-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:radial-gradient(circle, var(--orange), var(--red));
+  box-shadow:0 0 14px var(--orange);
+  animation:pulse 2.6s infinite;
+}
+.is-cool .brand-dot{
+  background:radial-gradient(circle, var(--ice), var(--blue));
+  box-shadow:0 0 14px var(--blue);
+  transition:all .8s;
+}
+@keyframes pulse{50%{opacity:.45}}
+.brand-name{font-weight:500;font-size:13px;letter-spacing:0.22em}
+.topbar nav{display:flex;gap:32px}
+.topbar nav a{color:var(--txt-2);text-decoration:none;cursor:pointer}
+.topbar nav a:hover{color:var(--txt)}
+
+/* ===== HERO ===== */
+.hero{
+  position:relative;z-index:4;
+  max-width:1560px;margin:0 auto;padding:24px 48px 60px;
+  display:grid;grid-template-columns:minmax(420px, .92fr) minmax(460px, 1.08fr);gap:34px;
+  align-items:stretch;
+}
+.hero-left{
+  position:relative;
+  background:linear-gradient(180deg, rgba(20,41,74,0.45), rgba(20,41,74,0.25));
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:36px 36px 28px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  overflow:hidden;
+  min-height:720px;
+}
+/* warm wash on hero-left when fan is OFF */
+.hero-left::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(80% 60% at 50% 70%, rgba(255,107,61,0.18), transparent 70%);
+  opacity:1;transition:opacity 1.2s;
+}
+.is-cool .hero-left::before{opacity:0}
+.hero-left::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(70% 50% at 50% 70%, rgba(122,182,255,0.18), transparent 70%);
+  opacity:0;transition:opacity 1.2s;
+}
+.is-cool .hero-left::after{opacity:1}
+
+.hero-eyebrow{
+  position:relative;z-index:2;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.28em;color:var(--blue);
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;
+}
+.hero-eyebrow .bar{width:24px;height:1px;background:var(--blue)}
+.hero-title{
+  position:relative;z-index:2;
+  font-family:"Fraunces",serif;font-weight:300;
+  font-size:clamp(40px, 4.4vw, 64px);line-height:0.95;letter-spacing:-0.02em;
+  margin:0 0 18px;text-wrap:balance;
+  font-variation-settings:"opsz" 144, "SOFT" 50;
+}
+.hero-title em{font-style:italic;color:var(--blue);font-weight:400;transition:color 1.2s}
+body:not(.is-cool) .hero-title em{color:var(--hot)}
+
+.hero-sub{
+  position:relative;z-index:2;
+  max-width:620px;color:var(--txt-2);font-size:15px;line-height:1.55;
+}
+
+/* Fan stage — fan centered, wind streams flowing across */
+.fan-stage{
+  position:relative;z-index:2;
+  flex:1;min-height:500px;
+  margin-top:14px;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.fan-stage::after{
+  content:"";position:absolute;left:0;right:0;bottom:64px;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(180,210,255,0.22) 25%, rgba(180,210,255,0.22) 75%, transparent);
+  z-index:1;
+}
+.fan-host{position:relative;z-index:3}
+.wind-canvas{position:absolute;inset:0;pointer-events:none;z-index:2}
+.fan-stage::before{
+  content:"";position:absolute;left:10%;right:10%;bottom:44px;height:60px;
+  background:radial-gradient(ellipse at center bottom, rgba(0,0,0,0.35), transparent 70%);
+  z-index:1;pointer-events:none;
+}
+
+/* control row under fan */
+.fan-controls{
+  position:relative;z-index:3;
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  margin-top:18px;padding-top:18px;border-top:1px solid var(--line);
+}
+.fan-controls .levels{
+  display:flex;gap:6px;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;
+}
+.fan-controls .levels button{
+  background:transparent;border:1px solid var(--line);color:var(--txt-2);
+  padding:8px 14px;border-radius:2px;cursor:pointer;font:inherit;letter-spacing:inherit;
+  transition:all .2s;
+}
+.fan-controls .levels button.active{
+  background:var(--blue);color:#06122a;border-color:var(--blue);
+}
+.fan-controls .status{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--txt-3);
+  text-align:right;
+}
+.fan-controls .status b{color:var(--txt);font-weight:400}
+
+.audio-toggle{
+  display:flex;align-items:center;gap:8px;
+  background:transparent;border:1px solid var(--line);color:var(--txt-2);
+  padding:8px 12px;border-radius:99px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.16em;
+  cursor:pointer;transition:all .2s;
+}
+.audio-toggle:hover{border-color:var(--line-2);color:var(--txt)}
+.audio-toggle.on{border-color:var(--blue);color:var(--blue)}
+
+/* ===== Hero right: heat map ===== */
+.hero-right{
+  background:rgba(58, 32, 36, 0.25);
+  border:1px solid rgba(255,107,61,0.18);
+  border-radius:4px;
+  padding:32px 32px 28px;
+  display:flex;flex-direction:column;
+  min-height:720px;
+  position:relative;overflow:hidden;
+}
+.hero-right::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(60% 60% at 30% 20%, rgba(255,107,61,0.12), transparent 60%),
+    radial-gradient(50% 50% at 80% 60%, rgba(255,87,87,0.10), transparent 60%);
+}
+.hero-right > *{position:relative}
+.hr-head{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:6px}
+.hr-eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.28em;color:var(--hot);
+  display:flex;align-items:center;gap:12px;
+}
+.hr-eyebrow .bar{width:24px;height:1px;background:var(--hot)}
+.hr-clock{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--txt-3)}
+.hr-title{
+  font-family:"Fraunces",serif;font-weight:300;
+  font-size:clamp(28px, 2.4vw, 36px);line-height:1.05;letter-spacing:-0.02em;
+  margin:8px 0 6px;
+  font-variation-settings:"opsz" 96;
+}
+.hr-title em{font-style:italic;color:var(--hot);font-weight:400}
+.hr-sub{font-size:13px;color:var(--txt-2);line-height:1.5;max-width:440px}
+
+/* Europe weather map */
+.europe-map{
+  flex:1;margin-top:22px;min-height:470px;
+  border:1px solid rgba(180,210,255,0.12);
+  background:
+    linear-gradient(rgba(122,182,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122,182,255,0.035) 1px, transparent 1px),
+    rgba(5,14,30,0.24);
+  background-size:44px 44px;
+  border-radius:3px;
+  position:relative;overflow:hidden;
+}
+.europe-map svg{display:block;width:100%;height:100%;min-height:470px}
+.eu-sea{fill:rgba(91,158,255,0.035)}
+.eu-land{fill:rgba(31,53,86,0.72);stroke:rgba(180,210,255,0.20);stroke-width:1.1}
+.eu-coast{fill:none;stroke:rgba(232,237,245,0.11);stroke-width:.7}
+.eu-isobar{fill:none;stroke:rgba(122,182,255,0.20);stroke-width:1;stroke-dasharray:5 8}
+.eu-heat{transition:opacity 1.2s, fill 1.2s, r 1.2s}
+.eu-heat.is-cooling{fill:rgba(95,220,224,0.30);opacity:.58}
+.eu-marker{cursor:pointer}
+.eu-marker text{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;fill:var(--txt-2)}
+.eu-marker .dot{stroke:#08172b;stroke-width:2;transition:fill 1s, r 1s, filter 1s}
+.eu-marker.hot .dot{fill:#ff3b30;filter:drop-shadow(0 0 14px rgba(255,59,48,.78))}
+.eu-marker.extreme .dot{fill:#ff1f1f;filter:drop-shadow(0 0 18px rgba(255,31,31,.9))}
+.eu-marker.cooling .dot{fill:var(--cyan);filter:drop-shadow(0 0 16px rgba(95,220,224,.78))}
+.eu-marker.normal .dot{fill:var(--blue)}
+.eu-temp{font-size:12px;fill:var(--txt);font-weight:500}
+.eu-wind{
+  opacity:0;transition:opacity .8s;
+  stroke:rgba(95,220,224,.58);stroke-width:1.4;fill:none;stroke-linecap:round;
+}
+.europe-map.is-cooling .eu-wind{opacity:1;animation:mapWind 2.2s linear infinite}
+@keyframes mapWind{
+  from{stroke-dasharray:0 18;stroke-dashoffset:0}
+  to{stroke-dasharray:18 18;stroke-dashoffset:-72}
+}
+.map-countdown{
+  position:absolute;left:18px;right:18px;bottom:16px;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:12px 14px;border:1px solid rgba(122,182,255,0.34);
+  background:rgba(8,20,38,.76);backdrop-filter:blur(10px);
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-2);
+  opacity:0;transform:translateY(8px);transition:opacity .4s, transform .4s;
+}
+.map-countdown.show{opacity:1;transform:translateY(0)}
+.map-countdown b{color:var(--cyan);font-weight:500}
+.map-legend{
+  margin-top:14px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3);
+}
+.map-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.weather-bars-panel{
+  margin-top:16px;padding-top:16px;border-top:1px solid var(--line);
+}
+.weather-bars-head{
+  display:flex;justify-content:space-between;gap:16px;align-items:center;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.18em;color:var(--txt-3);
+}
+.weather-bars-head b{color:var(--blue);font-weight:500}
+.weather-bars-panel .heatlist{
+  margin-top:12px;max-height:300px;overflow-y:auto;padding-right:4px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.weather-bars-panel .heat-row{background:rgba(20,41,74,0.34)}
+
+/* Heat map / city list */
+.heatlist{
+  flex:1;margin-top:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+}
+.heat-row{
+  display:grid;grid-template-columns:18px 1fr 60px;align-items:center;gap:12px;
+  padding:10px 14px;background:rgba(20,41,74,0.4);border:1px solid var(--line);
+  border-radius:2px;transition:all .25s;cursor:pointer;
+}
+.heat-row:hover{border-color:var(--line-2);transform:translateX(2px)}
+.heat-row.cooled{
+  border-color:rgba(122,182,255,0.4);
+  background:rgba(20,60,100,0.5);
+}
+.heat-row .flag{
+  width:18px;height:12px;border-radius:1px;
+  background:linear-gradient(180deg, var(--c1, #444), var(--c2, #222));
+}
+.heat-row .city{
+  font-family:"Fraunces",serif;font-size:17px;font-weight:400;font-variation-settings:"opsz" 60;letter-spacing:-0.005em;
+}
+.heat-row .city small{
+  display:block;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:0.16em;color:var(--txt-3);font-weight:400;margin-top:2px;
+}
+.heat-row .temp{
+  font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:500;text-align:right;
+  color:var(--txt);transition:color .8s;
+}
+.heat-row.cooled .temp{color:var(--ice)}
+.heat-row.lvl-hot   .temp{color:var(--hot)}
+.heat-row.lvl-extreme .temp{color:var(--red)}
+.heat-row .bar{
+  grid-column:2 / 4;
+  height:6px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;position:relative;
+}
+.heat-row .bar i{
+  position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg, var(--blue), var(--orange) 60%, var(--red));
+  border-radius:99px;
+  transition:width 1s;
+}
+.heat-row.cooled .bar i{
+  background:linear-gradient(90deg, var(--ice), var(--blue));
+}
+.heat-row .cool-btn{
+  grid-column:1 / 4;
+  font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:0.18em;
+  background:transparent;border:1px solid var(--line);color:var(--txt-3);
+  padding:6px 8px;border-radius:99px;cursor:pointer;transition:all .25s;
+  white-space:nowrap;
+}
+.heat-row .cool-btn:hover{border-color:var(--blue);color:var(--blue)}
+.heat-row.cooled .cool-btn{border-color:var(--blue);color:var(--blue);background:rgba(122,182,255,0.12)}
+.heat-row.cooled .cool-btn::before{content:"✓ ";}
+
+.hr-foot{
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.16em;color:var(--txt-3);
+}
+.hr-foot b{color:var(--blue);font-weight:500}
+
+/* delta indicator on cooled rows */
+.heat-row .temp .delta{
+  display:inline-block;margin-left:6px;font-size:10px;color:var(--cyan);
+  font-weight:400;letter-spacing:0.06em;vertical-align:middle;
+  animation:dipIn .5s ease both;
+}
+@keyframes dipIn{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Global cooling banner — anchored to the heatlist top, not the card top */
+.global-banner{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 16px;margin:18px 0 -8px;
+  border-radius:2px;
+  background:linear-gradient(90deg, rgba(122,182,255,0.18), rgba(95,220,224,0.10));
+  border:1px solid rgba(122,182,255,0.45);
+  backdrop-filter:blur(10px);
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--ice);
+  opacity:0;transition:opacity .6s;
+  position:relative;z-index:2;
+}
+.gb-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);animation:pulse 1.4s infinite;flex-shrink:0;
+}
+.gb-text{font-weight:500;color:var(--ice)}
+.gb-count{margin-left:auto;color:var(--blue);font-variant-numeric:tabular-nums}
+
+/* ===== Ice section ===== */
+.ice-section{
+  position:relative;z-index:4;
+  padding:120px 48px;max-width:1560px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+}
+.ice-copy .num{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:0.22em;color:var(--blue)}
+.ice-copy h2{
+  font-family:"Fraunces",serif;font-weight:300;font-size:clamp(36px,4.4vw,64px);line-height:1;letter-spacing:-0.02em;
+  margin:14px 0 18px;font-variation-settings:"opsz" 144;text-wrap:balance;
+}
+.ice-copy h2 em{font-style:italic;color:var(--cyan);font-weight:400}
+.ice-copy p{color:var(--txt-2);font-size:16px;line-height:1.6;max-width:480px;text-wrap:pretty}
+.ice-copy .hint{
+  margin-top:24px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.18em;color:var(--cyan);
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 16px;border:1px solid rgba(95,220,224,0.3);border-radius:99px;
+  background:rgba(95,220,224,0.05);
+}
+.ice-stage-host{display:flex;justify-content:center;align-items:center}
+
+/* Ice carve component styling */
+.ic-stage{
+  position:relative;
+  /* Hammer cursor (icepick/mallet) — points down-right, hotspot near tip */
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><defs><filter id='s' x='-20%25' y='-20%25' width='140%25' height='140%25'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.55'/></filter></defs><g filter='url(%23s)' transform='rotate(-22 12 14)'><rect x='2' y='4' width='22' height='8' rx='1.5' fill='%23d7dee8' stroke='%232a3145' stroke-width='1'/><rect x='2' y='4' width='6' height='8' rx='1' fill='%23a8b1c0' stroke='%232a3145' stroke-width='1'/><rect x='18' y='4' width='6' height='8' rx='1' fill='%23a8b1c0' stroke='%232a3145' stroke-width='1'/><path d='M12 12 L13.5 12 L14 32 L11.5 32 Z' fill='%23a06937' stroke='%23583920' stroke-width='1'/><circle cx='13' cy='8' r='1' fill='%232a3145'/></g></svg>") 14 6, crosshair;
+  background:radial-gradient(70% 70% at 50% 50%, rgba(122,182,255,0.06), transparent 70%);
+}
+/* When mouse is held down on ice, swap to "swung" hammer (rotated further, hit pose) */
+.ic-stage.is-striking{
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><defs><filter id='s' x='-20%25' y='-20%25' width='140%25' height='140%25'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-opacity='0.55'/></filter></defs><g filter='url(%23s)' transform='rotate(28 14 14)'><rect x='2' y='4' width='22' height='8' rx='1.5' fill='%23d7dee8' stroke='%232a3145' stroke-width='1'/><rect x='2' y='4' width='6' height='8' rx='1' fill='%23a8b1c0' stroke='%232a3145' stroke-width='1'/><rect x='18' y='4' width='6' height='8' rx='1' fill='%23a8b1c0' stroke='%232a3145' stroke-width='1'/><path d='M12 12 L13.5 12 L14 32 L11.5 32 Z' fill='%23a06937' stroke='%23583920' stroke-width='1'/><circle cx='13' cy='8' r='1' fill='%232a3145'/><g stroke='%235fdce0' stroke-width='1.4' fill='none' stroke-linecap='round'><path d='M2 22 L-2 24'/><path d='M4 26 L1 30'/><path d='M8 23 L9 28'/></g></g></svg>") 14 6, crosshair;
+}
+/* Hide the global weather-station crosshair when hovering ice (hammer replaces it) */
+.ic-stage:hover ~ .wx-cursor, body:has(.ic-stage:hover) .wx-cursor{ opacity:0 }
+.ic-stage canvas{position:absolute;inset:0;display:block}
+.ic-mist{z-index:1}
+.ic-ice{z-index:2}
+.ic-shards{z-index:3;pointer-events:none}
+.ic-prompt{
+  position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:8px;z-index:4;pointer-events:none;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.22em;color:var(--cyan);
+  opacity:0.7;
+}
+.ic-prompt-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 1.6s infinite}
+.ic-meter{
+  position:absolute;left:16px;top:16px;z-index:4;
+  display:flex;align-items:center;gap:8px;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--txt-2);
+}
+.ic-meter-bar{display:inline-block;width:80px;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;position:relative}
+.ic-meter-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--cyan);transition:width .25s}
+.ic-meter-v{color:var(--cyan);min-width:36px}
+
+/* ===== Section headers (existing pattern) ===== */
+section.with-head{position:relative;z-index:4}
+.sec-head{
+  max-width:1560px;margin:0 auto;padding:80px 48px 32px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:end;
+}
+.sec-head .num{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--blue);letter-spacing:0.22em}
+.sec-head h2{
+  font-family:"Fraunces",serif;font-weight:300;font-size:clamp(36px, 4.4vw, 60px);line-height:1;letter-spacing:-0.02em;margin:0;
+  font-variation-settings:"opsz" 96;text-wrap:balance;
+}
+.sec-head h2 em{font-style:italic;color:var(--blue);font-weight:400}
+.sec-head .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.18em;color:var(--txt-3);text-align:right}
+
+/* ===== Charts ===== */
+.charts{max-width:1560px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+.chart-card{
+  background:var(--card);border:1px solid var(--line);backdrop-filter:blur(14px);
+  padding:28px;border-radius:2px;display:flex;flex-direction:column;
+}
+.chart-card h3{font-family:"Fraunces",serif;font-size:22px;font-weight:400;margin:0;letter-spacing:-0.01em;font-variation-settings:"opsz" 60}
+.chart-card .sub{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.2em;color:var(--txt-3);margin-top:6px}
+.chart-card .big{font-family:"Fraunces",serif;font-size:56px;font-weight:300;color:var(--orange);margin-top:12px;letter-spacing:-0.03em;font-variation-settings:"opsz" 144}
+.chart-card .big.blue{color:var(--blue)}
+.chart-card .big.cyan{color:var(--cyan)}
+.chart-card .big small{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:400;color:var(--txt-2);margin-left:8px;letter-spacing:0.06em}
+.chart-card svg{margin-top:14px;width:100%;display:block;flex:1}
+.chart-card.dual{display:grid;grid-template-rows:1fr 1fr;gap:20px;padding:0;background:transparent;border:0;backdrop-filter:none}
+.chart-card.dual > div{background:var(--card);border:1px solid var(--line);backdrop-filter:blur(14px);padding:24px;border-radius:2px;display:flex;flex-direction:column}
+.chart-card .legend{display:flex;gap:18px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:0.14em;color:var(--txt-3);margin-top:10px}
+
+/* ===== Knowledge ===== */
+.know{max-width:1560px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
+.know-card{
+  display:grid;grid-template-columns:auto 1fr;gap:32px;padding:32px 0;border-top:1px solid var(--line);
+}
+.know-card .ktag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.22em;color:var(--blue);writing-mode:vertical-rl;transform:rotate(180deg);align-self:start}
+.know-card h4{font-family:"Fraunces",serif;font-size:26px;font-weight:300;margin:0 0 14px;line-height:1.15;letter-spacing:-0.015em;font-variation-settings:"opsz" 96}
+.know-card h4 em{font-style:italic;color:var(--orange);font-weight:400}
+.know-card p{color:var(--txt-2);font-size:14.5px;line-height:1.6;margin:0;text-wrap:pretty}
+.know-card .kstat{display:flex;align-items:baseline;gap:12px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.know-card .kstat .v{font-family:"Fraunces",serif;font-size:38px;font-weight:300;color:var(--orange);font-variation-settings:"opsz" 144;letter-spacing:-0.03em}
+.know-card .kstat .l{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.18em;color:var(--txt-3)}
+
+/* ===== Footer ===== */
+footer{
+  margin-top:120px;border-top:1px solid var(--line);padding:36px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:0.18em;color:var(--txt-3);
+  max-width:1560px;margin-left:auto;margin-right:auto;
+}
+
+/* ===== Character SVG ===== */
+.ch-wrap{position:relative}
+.ch-svg{display:block;height:auto}
+
+/* ===== Built-in fan control: move it onto the scene under the fan ===== */
+.fan-host .fw-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:100%}
+.fan-host .fw-fan-svg{width:min(460px, 78vw);height:auto}
+.fan-host .fw-control{
+  background:rgba(20,41,74,0.7);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:99px;
+  padding:8px 16px;display:flex;gap:14px;align-items:center;
+}
+.fan-host .fw-meta{display:none}  /* hide redundant state — we show on .fan-controls */
+
+/* ===== Responsive ===== */
+@media (max-width: 1240px){
+  .hero{grid-template-columns:1fr;gap:24px}
+  .hero-left,.hero-right{min-height:auto}
+  .heatlist{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ice-section{grid-template-columns:1fr;gap:32px;padding:80px 48px}
+  .charts{grid-template-columns:1fr}
+  .know{grid-template-columns:1fr}
+  .sec-head{grid-template-columns:1fr;gap:8px}
+  .sec-head .meta{text-align:left}
+}
+@media (max-width: 640px){
+  .topbar{padding:18px 20px;flex-wrap:wrap;gap:10px}
+  .topbar nav{display:none}
+  .hero{padding:14px 20px 40px}
+  .hero-left, .hero-right{padding:24px 20px}
+  .hero-title{font-size:32px}
+  .fan-stage{min-height:360px}
+  .europe-map,.europe-map svg{min-height:420px}
+  .heatlist{grid-template-columns:1fr}
+  .ice-section{padding:60px 20px}
+  .charts,.know{padding-left:20px;padding-right:20px}
+  .sec-head{padding-left:20px;padding-right:20px}
+  .know-card{grid-template-columns:1fr;gap:14px}
+  .know-card .ktag{writing-mode:horizontal-tb;transform:none}
+  footer{padding:24px 20px;flex-direction:column;gap:14px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <div>
+      <div class="brand-name">EWO · A BREEZE FOR THE WORLD</div>
+      <div style="font-size:9px;color:var(--txt-3);margin-top:2px;letter-spacing:0.22em">EXTREME WEATHER · COOLED, ONE CLICK AT A TIME</div>
+    </div>
+  </div>
+  <nav>
+    <a href="#hero">FAN</a>
+    <a href="#ice">ICE</a>
+    <a href="#climate">CLIMATE</a>
+    <a href="#alerts">ALERTS</a>
+    <a href="#field">ESSAYS</a>
+    <a href="Blog/">BLOG</a>
+    <a href="Observatory.html">OBSERVATORY →</a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+
+  <!-- LEFT: FAN + CHARACTER + BUTTON -->
+  <div class="hero-left">
+    <div>
+      <div class="hero-eyebrow"><span class="bar"></span>FOR THE 87% OF EUROPEAN HOMES WITHOUT AIR-CONDITIONING<span class="bar"></span></div>
+      <h1 class="hero-title">Press the button.<br/><em>Send them a breeze.</em></h1>
+      <p class="hero-sub">
+        Heatwaves are breaking records across the world this week. Most homes in Europe have no air conditioning. Press power for a breeze — crank it to <b style="color:var(--cyan)">L3</b> and the whole world gets thirty seconds of relief before the real weather returns.
+      </p>
+    </div>
+
+    <div class="fan-stage">
+      <canvas class="wind-canvas" id="windCanvas"></canvas>
+      <div class="fan-host" id="fanHost"></div>
+    </div>
+
+    <div class="fan-controls">
+      <div class="levels" id="fanLevels">
+        <button data-lv="1">L1 · BREEZE</button>
+        <button data-lv="2" class="active">L2 · STEADY</button>
+        <button data-lv="3">L3 · GUSTY</button>
+      </div>
+      <button class="audio-toggle" id="audioBtn">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 6h2l3-3v10L5 10H3V6z"/><path d="M11 5q1.5 1.4 1.5 3T11 11" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+        <span>SOUND OFF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT: EUROPE WEATHER MAP -->
+  <div class="hero-right">
+    <div class="hr-head">
+      <div class="hr-eyebrow"><span class="bar"></span>EUROPE WEATHER MAP</div>
+      <div class="hr-clock" id="utcClock">SYNCING</div>
+    </div>
+    <h2 class="hr-title">Heat pockets <em>right now.</em></h2>
+    <p class="hr-sub">Turn the fan on. Hot European stations cool for 30 seconds, then the map returns to real weather.</p>
+
+    <div class="europe-map" id="europeMap"></div>
+
+    <div class="map-legend">
+      <span><i style="background:var(--red)"></i>EXTREME HEAT</span>
+      <span><i style="background:#ff3b30"></i>HOT</span>
+      <span><i style="background:var(--cyan)"></i>COOLING</span>
+      <span id="hottest">HOTTEST · — · —°C</span>
+    </div>
+    <div class="weather-bars-panel">
+      <div class="weather-bars-head">
+        <span>GLOBAL WEATHER BARS</span>
+        <span><b id="cooledCount">0</b> / <span id="totalCount">0</span> CITIES COOLED</span>
+      </div>
+      <div class="heatlist" id="heatlist"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ICE CARVE ============ -->
+<section class="ice-section" id="ice">
+  <div class="ice-copy">
+    <span class="num">/II · A SECOND WAY TO COOL DOWN</span>
+    <h2>Carve a block of <em>ice</em>.</h2>
+    <p>The fan is one. This is the other. Click and drag across the ice to chip off pieces; mist rises with every strike. It does not lower the global temperature — but, for a moment, it does lower yours.</p>
+    <span class="hint">↑ CLICK + DRAG ON THE ICE</span>
+  </div>
+  <div class="ice-stage-host" id="iceHost"></div>
+</section>
+
+<!-- ============ CLIMATE CHARTS ============ -->
+<section class="with-head" id="climate">
+  <div class="sec-head">
+    <div class="num">/III</div>
+    <h2>Why the air <em>keeps getting hotter.</em></h2>
+    <div class="meta">BASELINE · 1951–1980<br/>RECORD · ROLLING</div>
+  </div>
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Global surface temperature anomaly</h3>
+      <div class="sub">°C VS 1951–1980 BASELINE · ANNUAL MEAN</div>
+      <div class="big">+1.36°<small>2026 YTD</small></div>
+      <svg id="chTemp" viewBox="0 0 600 220" preserveAspectRatio="none"></svg>
+      <div class="legend"><span style="color:var(--orange)">— ANOMALY</span><span style="color:var(--txt-3)">— ZERO BASELINE</span></div>
+    </div>
+    <div class="chart-card dual">
+      <div>
+        <h3>Atmospheric CO₂</h3>
+        <div class="sub">PPM · MAUNA LOA</div>
+        <div class="big blue">430<small>ppm</small></div>
+        <svg id="chCO2" viewBox="0 0 400 110" preserveAspectRatio="none"></svg>
+      </div>
+      <div>
+        <h3>Arctic sea ice min.</h3>
+        <div class="sub">SEPTEMBER · MKM²</div>
+        <div class="big cyan">3.81<small>Mkm²</small></div>
+        <svg id="chIce" viewBox="0 0 400 110" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </div>
+  <div class="charts" style="grid-template-columns:1fr;margin-top:20px">
+    <div class="chart-card">
+      <h3>Billion-dollar weather disasters · United States</h3>
+      <div class="sub">COUNT PER YEAR · NOAA-CLASS</div>
+      <svg id="chBars" viewBox="0 0 1000 180" preserveAspectRatio="none"></svg>
+      <div class="legend"><span style="color:var(--red)">— DISASTERS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ALERT MAP ============ -->
+<section class="with-head" id="alerts">
+  <div class="sec-head">
+    <div class="num">/IV</div>
+    <h2>Where the air is <em>misbehaving.</em></h2>
+    <div class="meta">PROJECTION · EQUIRECTANGULAR<br/>UPDATED · LIVE</div>
+  </div>
+  <div style="max-width:1560px;margin:0 auto;padding:0 48px">
+    <div style="background:var(--card);border:1px solid var(--line);backdrop-filter:blur(14px);padding:32px;border-radius:2px">
+      <svg id="mapSvg" viewBox="0 0 1000 500" style="width:100%;height:auto;display:block"></svg>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;margin-top:22px;border-top:1px solid var(--line);padding-top:18px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:var(--txt-2)">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#ff9a4d;display:inline-block"></span>EXTREME HEAT</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#7ab6ff;display:inline-block"></span>FLOODING</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#b67aff;display:inline-block"></span>TROPICAL STORM</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#d4a574;display:inline-block"></span>DUST STORM</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#5fdce0;display:inline-block"></span>EXTREME COLD</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ESSAYS ============ -->
+<section class="with-head" id="field">
+  <div class="sec-head">
+    <div class="num">/V</div>
+    <h2>What the data <em>is saying.</em></h2>
+    <div class="meta">EDITORIAL · EWO DESK</div>
+  </div>
+  <div class="know" id="knowGrid"></div>
+</section>
+
+<footer>
+  <div>EWO · A BREEZE FOR THE WORLD · 2026</div>
+  <div>LIVE DATA · OPEN-METEO COMPATIBLE</div>
+  <div>v 2.0 — ATMOSPHERE</div>
+</footer>
+
+<style>
+  /* alert marker keyframes used inside SVG */
+  .alert-marker .pulse{transform-origin:center;transform-box:fill-box;animation:ping 2.4s infinite}
+  @keyframes ping{0%{r:6;opacity:.7}80%,100%{r:24;opacity:0}}
+</style>
+
+<script src="weather-data.js"></script>
+<script src="fan-wind.js"></script>
+<script src="ice-carve.js"></script>
+<script>
+/* ============ Clock ============ */
+let liveWeatherStatus = "SYNCING";
+function tickClock(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  document.getElementById("utcClock").textContent =
+    `${liveWeatherStatus} / ${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
+}
+tickClock(); setInterval(tickClock, 1000);
+
+/* ============ Fan mount ============ */
+FanWind.mount(document.getElementById("fanHost"), { size: 460, label: "POWER" });
+
+/* Sync body class with wind state */
+FanWind.onChange((speed, on) => {
+  document.body.classList.toggle("is-cool", on || speed > 0.2);
+  document.body.dataset.fanLevel = on ? String(FanWind.getLevel()) : "0";
+});
+
+/* Level buttons */
+const levelBtns = document.querySelectorAll("#fanLevels button");
+let currentLevel = 2;
+FanWind.setLevel(currentLevel);
+levelBtns.forEach(b => b.addEventListener("click", () => {
+  levelBtns.forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  currentLevel = parseInt(b.dataset.lv, 10);
+  FanWind.setLevel(currentLevel);            // <- now the fan engine speeds up at L3
+  // If fan is OFF and user picks a level, turn it on
+  if (!FanWind.isOn()){
+    document.querySelector(".fw-btn")?.click();
+  }
+}));
+
+/* ============ Wind canvas — radial streams blowing outward from the fan ============ */
+(function windStreams(){
+  const cv = document.getElementById("windCanvas");
+  const ctx = cv.getContext("2d");
+  function resize(){
+    const r = cv.parentElement.getBoundingClientRect();
+    cv.width = r.width; cv.height = r.height;
+  }
+  resize(); addEventListener("resize", resize);
+  addEventListener("resize", resize);
+
+  // streams emit radially from the fan center toward the viewer + sides
+  const streams = [];
+  for (let i = 0; i < 56; i++){
+    streams.push(spawn());
+  }
+  function spawn(){
+    // bias toward horizontal spread (fan blowing forward)
+    const angle = (Math.random() - 0.5) * Math.PI * 1.2;  // -108° to +108°
+    return {
+      angle,
+      r: 60 + Math.random() * 30,           // start just outside fan radius
+      sp: 1 + Math.random() * 2.5,
+      len: 24 + Math.random() * 60,
+      a: 0.25 + Math.random() * 0.5,
+      wob: Math.random() * 1000,
+    };
+  }
+
+  const flecks = [];
+  for (let i = 0; i < 36; i++){
+    flecks.push({
+      angle: (Math.random() - 0.5) * Math.PI * 1.15,
+      r: 70 + Math.random() * Math.max(cv.width, cv.height),
+      sp: 1 + Math.random() * 3.2,
+      size: 0.8 + Math.random() * 2.2,
+      wob: Math.random() * 1000,
+      a: 0.10 + Math.random() * 0.25,
+    });
+  }
+
+  function tick(t){
+    const wind = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--wind")) || 0;
+    // L1 → 0.9, L2 → 1.3, L3 → 2.6 (dramatic jump at L3)
+    const lvBoost = currentLevel === 3 ? 2.6 : currentLevel === 2 ? 1.3 : 0.9;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    const cx = cv.width / 2, cy = cv.height / 2;
+    const maxR = Math.max(cv.width, cv.height);
+    if (wind > 0.04){
+      const cone = ctx.createRadialGradient(cx, cy, 42, cx, cy, maxR * 0.82);
+      cone.addColorStop(0, `rgba(207,233,255,${0.12 * wind})`);
+      cone.addColorStop(0.45, `rgba(122,182,255,${0.055 * wind})`);
+      cone.addColorStop(1, "rgba(207,233,255,0)");
+      ctx.fillStyle = cone;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, maxR * 0.72, maxR * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    streams.forEach((s, i) => {
+      s.r += s.sp * (1 + wind * 5 * lvBoost);
+      if (s.r > maxR){
+        streams[i] = spawn();
+        return;
+      }
+      const wob = Math.sin(t / 240 + s.wob) * 0.08 * wind;
+      const a = s.angle + wob;
+      const x1 = cx + Math.cos(a) * s.r;
+      const y1 = cy + Math.sin(a) * s.r;
+      const x2 = cx + Math.cos(a) * (s.r + s.len);
+      const y2 = cy + Math.sin(a) * (s.r + s.len);
+      const pulse = 0.72 + Math.sin(t / 420 + s.wob) * 0.28;
+      const op = wind * s.a * pulse;
+      if (op < 0.02) return;
+      const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+      grad.addColorStop(0, `rgba(207, 233, 255, 0)`);
+      grad.addColorStop(0.5, `rgba(207, 233, 255, ${op})`);
+      grad.addColorStop(1, `rgba(207, 233, 255, 0)`);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 0.7 + wind * 1.4 * pulse;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      const bend = Math.sin(t / 310 + s.wob) * 18 * wind;
+      const mx = (x1 + x2) / 2 + Math.cos(a + Math.PI / 2) * bend;
+      const my = (y1 + y2) / 2 + Math.sin(a + Math.PI / 2) * bend;
+      ctx.quadraticCurveTo(mx, my, x2, y2);
+      ctx.stroke();
+    });
+
+    flecks.forEach((p, i) => {
+      p.r += p.sp * (1 + wind * 4.8 * lvBoost);
+      if (p.r > maxR){
+        p.r = 60 + Math.random() * 28;
+        p.angle = (Math.random() - 0.5) * Math.PI * 1.15;
+      }
+      const a = p.angle + Math.sin(t / 260 + p.wob) * 0.12 * wind;
+      const x = cx + Math.cos(a) * p.r;
+      const y = cy + Math.sin(a) * p.r;
+      const op = Math.max(0, wind * p.a * (1 - p.r / (maxR * 1.05)));
+      if (op < 0.015) return;
+      ctx.fillStyle = `rgba(220,242,255,${op})`;
+      ctx.beginPath();
+      ctx.arc(x, y, p.size * (0.7 + wind * 0.8), 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============ Apply subtle wind drift to hero copy ============ */
+document.querySelectorAll(
+  ".hero-title, .hero-sub, .hero-eyebrow, .hr-title, .hr-sub"
+).forEach((el, i) => FanWind.applyDrift(el, 0.18 + (i % 3) * 0.08));
+
+/* ============ Heat list (cities) ============ */
+const FLAGS = {
+  GB:["#012169","#C8102E"], FR:["#0055A4","#EF4135"], ES:["#AA151B","#F1BF00"],
+  DE:["#000","#DD0000"], IT:["#008C45","#CD212A"], GR:["#0D5EAF","#fff"], NO:["#BA0C2F","#00205B"],
+  IN:["#FF9933","#138808"], US:["#B22234","#3C3B6E"], CA:["#FF0000","#fff"], MX:["#006847","#CE1126"]
+};
+let cities = WeatherData.getAll().sort((a,b) => b.temp - a.temp);  // hottest first
+const totalEl = document.getElementById("totalCount");
+const cooledEl = document.getElementById("cooledCount");
+const hotEl = document.getElementById("hottest");
+totalEl.textContent = cities.length;
+hotEl.textContent = `HOTTEST · ${cities[0].name.toUpperCase()} · ${cities[0].temp}°C`;
+
+const cooled = new Set();
+// REAL = mock data (the "truth"). DISPLAY = what we show, which can dip when L3.
+let realTemps = Object.fromEntries(cities.map(c => [c.id, c.temp]));
+let displayTemps = { ...realTemps };
+let tempMax = Math.max(...cities.map(c => c.temp));
+const tempMin = -10;
+
+function lvl(t){
+  if (t >= 42) return "lvl-extreme";
+  if (t >= 32) return "lvl-hot";
+  return "";
+}
+function renderHeat(){
+  const host = document.getElementById("heatlist");
+  host.innerHTML = cities.map((c, i) => {
+    const [c1, c2] = FLAGS[c.country] || ["#444","#222"];
+    const t = displayTemps[c.id];
+    const real = realTemps[c.id];
+    const dipped = Math.abs(t - real) > 0.4;
+    const pct = Math.max(4, Math.min(100, ((t - tempMin) / (tempMax - tempMin)) * 100));
+    const cooledClass = (cooled.has(c.id) || dipped) ? " cooled" : "";
+    const delta = dipped ? `<span class="delta">▼${(real - t).toFixed(1)}</span>` : "";
+    return `
+      <div class="heat-row ${lvl(t)}${cooledClass}" data-id="${c.id}" style="--c1:${c1};--c2:${c2}">
+        <div class="flag" style="background:linear-gradient(180deg,${c1} 50%,${c2} 50%)"></div>
+        <div class="city">${c.name}<small>${c.country} · ${c.conditionLabel.toUpperCase()}</small></div>
+        <div class="temp">${Math.round(t)}°C${delta}</div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <button class="cool-btn">${cooled.has(c.id) ? "COOLED" : (dipped ? "COOLING" : "COOL IT")}</button>
+      </div>
+    `;
+  }).join("");
+  // refresh hottest pointer (based on REAL temps — that's the truth)
+  hotEl.textContent = `HOTTEST · ${cities[0].name.toUpperCase()} · ${realTemps[cities[0].id]}°C`;
+}
+renderHeat();
+
+async function refreshLiveWeather(){
+  if (!WeatherData.getAllLive) return;
+  try {
+    const liveCities = (await WeatherData.getAllLive()).filter(Boolean).sort((a,b) => b.temp - a.temp);
+    if (!liveCities.length) return;
+    cities = liveCities;
+    realTemps = Object.fromEntries(cities.map(c => [c.id, c.temp]));
+    displayTemps = { ...realTemps };
+    tempMax = Math.max(...cities.map(c => c.temp));
+    totalEl.textContent = cities.length;
+    const liveCount = cities.filter(c => c.isLive).length;
+    const latest = cities.find(c => c.observedAt)?.observedAt;
+    liveWeatherStatus = latest ? `LIVE ${liveCount}/${cities.length} OBS ${latest}` : `LIVE ${liveCount}/${cities.length}`;
+    renderHeat();
+    renderEuropeMap();
+  } catch (err) {
+    liveWeatherStatus = "LOCAL FALLBACK";
+  }
+  tickClock();
+}
+refreshLiveWeather();
+setInterval(refreshLiveWeather, 5 * 60 * 1000);
+
+document.getElementById("heatlist").addEventListener("click", e => {
+  const row = e.target.closest(".heat-row");
+  if (!row) return;
+  const id = row.dataset.id;
+  if (cooled.has(id)) cooled.delete(id); else cooled.add(id);
+  cooledEl.textContent = cooled.size;
+  renderHeat();
+  // make sure the fan is on if user is cooling cities
+  if (!FanWind.isOn() && cooled.size > 0){
+    document.querySelector(".fw-btn")?.click();
+  }
+});
+
+/* ====== GLOBAL COOLING — triggered when L3 + fan is ON ======
+   When wind ≥ "L3 strong":
+   - All cities visually drop by ~6°C
+   - After 30s, displayTemps tween BACK to realTemps (the real weather)
+   - A banner shows countdown
+*/
+let globalCoolActive = false;
+let globalCoolTimer = null;
+let globalCoolStart = 0;
+const COOL_DURATION = 30000;
+
+function startGlobalCool(){
+  if (globalCoolActive) return;
+  globalCoolActive = true;
+  globalCoolStart = performance.now();
+
+  // tween displayTemps DOWN immediately
+  cities.forEach(c => {
+    const r = realTemps[c.id];
+    // colder cities dip less; hotter cities dip more (dramatic relief)
+    const dip = r >= 40 ? 8 : r >= 30 ? 6 : r >= 20 ? 4 : 2;
+    animTemp(c.id, r - dip, 1500);
+  });
+
+  showGlobalBanner();
+
+  // after 30s, restore the real readings
+  globalCoolTimer = setTimeout(restoreReal, COOL_DURATION);
+}
+function restoreReal(){
+  cities.forEach(c => animTemp(c.id, realTemps[c.id], 2500));
+  globalCoolActive = false;
+  clearTimeout(globalCoolTimer);
+  setTimeout(hideGlobalBanner, 2500);
+}
+
+const tempAnimators = {};
+// Shared render-throttle so 19 simultaneous animTemps don't trigger 1140 innerHTML/sec.
+let _renderQueued = false;
+function scheduleRender(){
+  if (_renderQueued) return;
+  _renderQueued = true;
+  requestAnimationFrame(() => { _renderQueued = false; renderHeat(); });
+}
+function animTemp(id, target, ms){
+  if (tempAnimators[id]) cancelAnimationFrame(tempAnimators[id]);
+  const start = displayTemps[id];
+  const from = start;
+  const t0 = performance.now();
+  function step(now){
+    const k = Math.min(1, (now - t0) / ms);
+    const e = 1 - Math.pow(1 - k, 3);
+    displayTemps[id] = from + (target - from) * e;
+    scheduleRender();   // batched
+    if (k < 1) tempAnimators[id] = requestAnimationFrame(step);
+  }
+  tempAnimators[id] = requestAnimationFrame(step);
+}
+
+/* Global cool banner + countdown */
+function showGlobalBanner(){
+  let b = document.getElementById("globalBanner");
+  if (!b){
+    b = document.createElement("div");
+    b.id = "globalBanner";
+    b.className = "global-banner";
+    // insert above the heatlist, NOT overlapping the title
+    const heatlist = document.getElementById("heatlist");
+    heatlist.parentNode.insertBefore(b, heatlist);
+  }
+  b.style.display = "flex";
+  requestAnimationFrame(() => { b.style.opacity = "1"; });
+  updateBanner();
+}
+function hideGlobalBanner(){
+  const b = document.getElementById("globalBanner");
+  if (b){
+    b.style.opacity = "0";
+    setTimeout(() => { if (b) b.style.display = "none"; }, 700);
+  }
+}
+function updateBanner(){
+  const b = document.getElementById("globalBanner");
+  if (!b || !globalCoolActive) return;
+  const remain = Math.max(0, COOL_DURATION - (performance.now() - globalCoolStart));
+  const s = (remain / 1000).toFixed(1);
+  b.innerHTML = `
+    <span class="gb-dot"></span>
+    <span class="gb-text">GLOBAL COOLING · BREEZE AT FULL POWER</span>
+    <span class="gb-count">${s}s until real weather returns</span>
+  `;
+  requestAnimationFrame(updateBanner);
+}
+
+/* Trigger logic: watch level + fan state */
+function checkGlobalCool(){
+  const on = FanWind.isOn();
+  if (on && currentLevel === 3 && !globalCoolActive){
+    startGlobalCool();
+  }
+}
+FanWind.onChange((s, on) => { checkGlobalCool(); });
+levelBtns.forEach(b => b.addEventListener("click", () => setTimeout(checkGlobalCool, 50)));
+
+/* ============ Europe map cooling layer ============ */
+const EUROPE_POS = {
+  london:[244,214], paris:[296,258], madrid:[244,360], berlin:[390,220],
+  rome:[394,344], athens:[516,388], oslo:[392,102]
+};
+let europeCoolingActive = false;
+let europeCoolingStart = 0;
+let europeCoolingTimer = null;
+const europeAnimators = {};
+let europeRenderQueued = false;
+
+function getEuropeCities(){
+  return cities.filter(c => c.region === "EU" && EUROPE_POS[c.id]);
+}
+
+function getEuropeClass(real, shown){
+  if (real - shown > 0.4) return "cooling";
+  if (shown >= 38) return "extreme";
+  if (shown >= 28) return "hot";
+  return "normal";
+}
+
+function renderEuropeMap(){
+  const host = document.getElementById("europeMap");
+  if (!host) return;
+  const eu = getEuropeCities();
+  const hottestEurope = [...eu].sort((a,b) => realTemps[b.id] - realTemps[a.id])[0];
+  if (hottestEurope) hotEl.textContent = `HOTTEST - ${hottestEurope.name.toUpperCase()} - ${realTemps[hottestEurope.id]}C`;
+
+  const heat = eu.map(c => {
+    const [x,y] = EUROPE_POS[c.id];
+    const real = realTemps[c.id];
+    const shown = displayTemps[c.id];
+    if (real < 28) return "";
+    const cooling = real - shown > 0.4;
+    const r = Math.max(34, Math.min(92, (real - 22) * 5.2));
+    return `<circle class="eu-heat ${cooling ? "is-cooling" : ""}" cx="${x}" cy="${y}" r="${r}" fill="rgba(255,31,31,0.30)" opacity="${cooling ? ".55" : ".82"}"/>`;
+  }).join("");
+
+  const markers = eu.map(c => {
+    const [x,y] = EUROPE_POS[c.id];
+    const real = realTemps[c.id];
+    const shown = displayTemps[c.id];
+    const cls = getEuropeClass(real, shown);
+    return `
+      <g class="eu-marker ${cls}" transform="translate(${x},${y})">
+        <circle class="dot" r="${cls === "extreme" ? 8 : 6}"></circle>
+        <text x="12" y="-2">${c.name.toUpperCase()}</text>
+        <text class="eu-temp" x="12" y="14">${Math.round(shown)}C${cls === "cooling" ? " COOLING" : ""}</text>
+      </g>
+    `;
+  }).join("");
+
+  const remain = europeCoolingActive ? Math.max(0, COOL_DURATION - (performance.now() - europeCoolingStart)) / 1000 : 0;
+  host.classList.toggle("is-cooling", europeCoolingActive);
+  host.innerHTML = `
+    <svg viewBox="0 0 760 500" role="img" aria-label="Europe weather map">
+      <rect class="eu-sea" x="0" y="0" width="760" height="500"/>
+      <path class="eu-isobar" d="M70 330 C170 250 265 240 360 300 S555 380 700 285"/>
+      <path class="eu-isobar" d="M100 120 C210 180 300 92 410 135 S570 220 670 150"/>
+      <path class="eu-isobar" d="M45 420 C200 385 300 440 455 408 S625 350 730 395"/>
+      <path class="eu-land" d="M112 190 C150 150 190 155 218 184 C235 208 227 245 190 260 C154 272 108 248 100 220 C98 208 102 198 112 190 Z"/>
+      <path class="eu-land" d="M70 260 C96 238 122 245 134 270 C146 298 124 328 92 320 C60 312 50 280 70 260 Z"/>
+      <path class="eu-land" d="M210 274 C260 246 300 252 325 286 C340 318 326 362 282 382 C238 400 190 378 184 334 C180 310 190 286 210 274 Z"/>
+      <path class="eu-land" d="M338 170 C415 112 530 140 606 198 C668 245 668 322 612 374 C548 432 428 412 356 362 C296 320 280 220 338 170 Z"/>
+      <path class="eu-land" d="M368 90 C418 28 492 20 536 72 C570 112 546 168 488 176 C424 184 360 154 368 90 Z"/>
+      <path class="eu-land" d="M402 336 C440 362 452 422 428 454 C392 438 370 390 382 350 Z"/>
+      <path class="eu-land" d="M494 360 C526 342 572 356 596 386 C560 414 516 414 488 390 Z"/>
+      <path class="eu-coast" d="M178 192 C224 214 238 250 212 282 M310 286 C386 250 480 250 590 294 M408 172 C462 198 506 208 570 198"/>
+      ${heat}
+      <path class="eu-wind" d="M115 232 C230 202 340 215 465 255 S628 296 704 248"/>
+      <path class="eu-wind" d="M130 300 C260 280 375 302 500 342 S642 372 710 336"/>
+      <path class="eu-wind" d="M150 148 C286 120 390 146 506 188 S625 214 696 184"/>
+      ${markers}
+    </svg>
+    <div class="map-countdown ${europeCoolingActive ? "show" : ""}" id="mapCountdown">
+      <span>${europeCoolingActive ? "EUROPE COOLING - REAL WEATHER RETURNS" : "FAN COOLING READY"}</span>
+      <b>${europeCoolingActive ? remain.toFixed(1) + "S" : "READY"}</b>
+    </div>
+  `;
+}
+
+function scheduleEuropeRender(){
+  if (europeRenderQueued) return;
+  europeRenderQueued = true;
+  requestAnimationFrame(() => {
+    europeRenderQueued = false;
+    renderEuropeMap();
+  });
+}
+
+function animateEuropeTemp(id, target, ms){
+  if (europeAnimators[id]) cancelAnimationFrame(europeAnimators[id]);
+  const from = displayTemps[id];
+  const t0 = performance.now();
+  function step(now){
+    const k = Math.min(1, (now - t0) / ms);
+    const e = 1 - Math.pow(1 - k, 3);
+    displayTemps[id] = from + (target - from) * e;
+    scheduleEuropeRender();
+    if (k < 1) europeAnimators[id] = requestAnimationFrame(step);
+  }
+  europeAnimators[id] = requestAnimationFrame(step);
+}
+
+function startEuropeCooling(){
+  if (europeCoolingActive) return;
+  europeCoolingActive = true;
+  europeCoolingStart = performance.now();
+  getEuropeCities().forEach(c => {
+    const real = realTemps[c.id];
+    if (real < 28) return;
+    const dip = real >= 40 ? 8 : real >= 34 ? 6 : 4;
+    animateEuropeTemp(c.id, real - dip, 1500);
+  });
+  clearTimeout(europeCoolingTimer);
+  europeCoolingTimer = setTimeout(restoreEuropeWeather, COOL_DURATION);
+  tickEuropeCountdown();
+}
+
+function restoreEuropeWeather(){
+  getEuropeCities().forEach(c => animateEuropeTemp(c.id, realTemps[c.id], 2500));
+  europeCoolingActive = false;
+  scheduleEuropeRender();
+}
+
+function tickEuropeCountdown(){
+  if (!europeCoolingActive) return;
+  scheduleEuropeRender();
+  requestAnimationFrame(tickEuropeCountdown);
+}
+
+renderEuropeMap();
+setTimeout(renderEuropeMap, 4200);
+setTimeout(renderEuropeMap, 9000);
+
+let europeFanWasOn = FanWind.isOn();
+FanWind.onChange((speed, on) => {
+  if (on && !europeFanWasOn) startEuropeCooling();
+  europeFanWasOn = on;
+});
+
+
+/* ============ Audio (gentle wind, default OFF) ============ */
+let audioCtx, noiseSrc, gainNode, filter, audioOn = false;
+document.getElementById("audioBtn").addEventListener("click", () => {
+  if (!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < bufferSize; i++){
+      const white = Math.random() * 2 - 1;
+      output[i] = (last + 0.02 * white) / 1.02;
+      last = output[i];
+      output[i] *= 3.5; // gain
+    }
+    noiseSrc = audioCtx.createBufferSource();
+    noiseSrc.buffer = noiseBuffer;
+    noiseSrc.loop = true;
+    filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 800;
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0;
+    noiseSrc.connect(filter).connect(gainNode).connect(audioCtx.destination);
+    noiseSrc.start();
+  }
+  audioOn = !audioOn;
+  document.getElementById("audioBtn").classList.toggle("on", audioOn);
+  document.getElementById("audioBtn").querySelector("span").textContent = audioOn ? "SOUND ON" : "SOUND OFF";
+  if (audioCtx.state === "suspended") audioCtx.resume();
+});
+// gain follows --wind
+setInterval(() => {
+  if (!audioOn || !gainNode) return;
+  const w = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--wind")) || 0;
+  gainNode.gain.linearRampToValueAtTime(w * 0.12 * currentLevel * 0.7, audioCtx.currentTime + 0.2);
+  if (filter) filter.frequency.linearRampToValueAtTime(400 + currentLevel * 300, audioCtx.currentTime + 0.2);
+}, 200);
+
+/* ============ Ice carve ============ */
+IceCarve.mount(document.getElementById("iceHost"), { width: 520, height: 420 });
+
+/* ============ Charts ============ */
+function linePath(data, w, h, padX, padY, getY){
+  const xs = data.map(d => d.y);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const vals = data.map(getY);
+  const vMin = Math.min(...vals), vMax = Math.max(...vals);
+  const xScale = v => padX + (v - xMin) / (xMax - xMin) * (w - padX*2);
+  const yScale = v => h - padY - (v - vMin) / (vMax - vMin) * (h - padY*2);
+  let d = "";
+  data.forEach((p, i) => {
+    const x = xScale(p.y), y = yScale(getY(p));
+    d += (i ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1);
+  });
+  return { d, xScale, yScale, vMin, vMax };
+}
+function drawArea(svg, data, color, getY){
+  const w = svg.viewBox.baseVal.width, h = svg.viewBox.baseVal.height;
+  const padX = 32, padY = 22;
+  const { d, xScale, yScale, vMin, vMax } = linePath(data, w, h, padX, padY, getY);
+  const last = data[data.length-1], first = data[0];
+  const areaD = d + `L${xScale(last.y).toFixed(1)},${(h-padY).toFixed(1)} L${xScale(first.y).toFixed(1)},${(h-padY).toFixed(1)} Z`;
+  let grid = "";
+  for (let i = 0; i <= 4; i++){
+    const y = padY + (h - padY*2) * i / 4;
+    grid += `<line x1="${padX}" y1="${y}" x2="${w-padX}" y2="${y}" stroke="rgba(180,210,255,0.08)" stroke-width="0.6"/>`;
+  }
+  let xl = "";
+  data.filter((_,i) => i === 0 || i === data.length-1 || i === Math.floor(data.length/2)).forEach(p => {
+    xl += `<text x="${xScale(p.y).toFixed(1)}" y="${(h-4).toFixed(1)}" fill="#6f83a4" font-family="IBM Plex Mono" font-size="9" text-anchor="middle">${p.y}</text>`;
+  });
+  let yl = "";
+  for (let i = 0; i <= 2; i++){
+    const v = vMin + (vMax - vMin) * (1 - i/2);
+    const y = padY + (h - padY*2) * i / 2;
+    yl += `<text x="${padX-4}" y="${y+3}" fill="#6f83a4" font-family="IBM Plex Mono" font-size="9" text-anchor="end">${v.toFixed(2)}</text>`;
+  }
+  const cid = "g_" + color.replace('#','');
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="${cid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="${color}" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${grid}
+    <path d="${areaD}" fill="url(#${cid})"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="${xScale(last.y).toFixed(1)}" cy="${yScale(getY(last)).toFixed(1)}" r="3.5" fill="${color}"/>
+    <circle cx="${xScale(last.y).toFixed(1)}" cy="${yScale(getY(last)).toFixed(1)}" r="8" fill="${color}" opacity="0.22"/>
+    ${xl}${yl}
+  `;
+}
+drawArea(document.getElementById("chTemp"), WeatherData.TEMP_ANOMALY, "#ff9a4d", d => d.v);
+drawArea(document.getElementById("chCO2"),  WeatherData.CO2,           "#7ab6ff", d => d.v);
+drawArea(document.getElementById("chIce"),  WeatherData.SEA_ICE,       "#5fdce0", d => d.v);
+
+(function drawBars(){
+  const svg = document.getElementById("chBars");
+  const data = WeatherData.DISASTERS;
+  const w = 1000, h = 180, padX = 30, padY = 24;
+  const vMax = Math.max(...data.map(d => d.v));
+  const step = (w - padX*2) / data.length;
+  const bw = step * 0.55;
+  let html = "";
+  for (let i = 0; i <= 4; i++){
+    const y = padY + (h - padY*2) * i / 4;
+    html += `<line x1="${padX}" y1="${y}" x2="${w-padX}" y2="${y}" stroke="rgba(180,210,255,0.08)" stroke-width="0.6"/>`;
+  }
+  data.forEach((d, i) => {
+    const x = padX + step * i + (step - bw)/2;
+    const bh = (d.v / vMax) * (h - padY*2);
+    const y = h - padY - bh;
+    const intense = d.v / vMax;
+    const col = intense > 0.7 ? "#ff5757" : intense > 0.45 ? "#ff9a4d" : "#7ab6ff";
+    html += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" opacity="${0.6 + intense*0.4}" rx="1"/>`;
+    html += `<text x="${x + bw/2}" y="${y - 5}" fill="${col}" font-family="IBM Plex Mono" font-size="9" text-anchor="middle">${d.v}</text>`;
+    html += `<text x="${x + bw/2}" y="${h - 8}" fill="#6f83a4" font-family="IBM Plex Mono" font-size="9" text-anchor="middle">${d.y}</text>`;
+  });
+  svg.innerHTML = html;
+})();
+
+/* ============ Map ============ */
+(function buildMap(){
+  const svg = document.getElementById("mapSvg");
+  const W = 1000, H = 500;
+  function proj(lat, lon){ return [(lon+180)/360*W, (90-lat)/180*H]; }
+  const land = `
+    <path d="M 80 90 Q 160 70 230 110 Q 280 130 270 200 Q 250 240 200 260 Q 150 280 110 250 Q 70 220 70 170 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 230 110 Q 290 100 320 150 Q 310 200 280 200 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 330 70 Q 360 60 360 110 Q 340 120 320 100 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 260 280 Q 290 290 290 360 Q 280 430 250 440 Q 230 410 240 350 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 470 110 Q 530 90 560 130 Q 540 170 500 170 Q 460 160 470 130 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 490 180 Q 560 180 580 250 Q 560 340 510 360 Q 470 320 470 250 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 560 100 Q 740 90 820 140 Q 850 200 780 230 Q 700 240 620 220 Q 560 190 560 140 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 700 230 Q 720 230 720 280 Q 710 300 695 290 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 780 250 Q 830 260 830 290 Q 800 300 770 280 Z" fill="rgba(180,210,255,0.07)"/>
+    <path d="M 830 340 Q 900 330 920 370 Q 890 400 840 390 Q 820 370 830 350 Z" fill="rgba(180,210,255,0.07)"/>
+  `;
+  let grid = "";
+  for (let lon = -180; lon <= 180; lon += 30) grid += `<line x1="${(lon+180)/360*W}" y1="0" x2="${(lon+180)/360*W}" y2="${H}" stroke="rgba(180,210,255,0.05)"/>`;
+  for (let lat = -90; lat <= 90; lat += 30) grid += `<line x1="0" y1="${(90-lat)/180*H}" x2="${W}" y2="${(90-lat)/180*H}" stroke="rgba(180,210,255,0.05)"/>`;
+  grid += `<line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="rgba(180,210,255,0.18)" stroke-width="0.7" stroke-dasharray="2 5"/>`;
+
+  let markers = "", ticks = "";
+  WeatherData.getAll().forEach(c => {
+    const [x,y] = proj(c.lat, c.lon);
+    if (c.alert){
+      const col = c.alertMeta.color;
+      markers += `
+        <g class="alert-marker" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
+          <circle class="pulse" r="6" fill="${col}" opacity="0.45"/>
+          <circle r="4.5" fill="${col}"/>
+          <circle r="2" fill="white"/>
+          <text x="9" y="3" fill="${col}" font-family="IBM Plex Mono" font-size="9" letter-spacing="1">${c.name.toUpperCase()}</text>
+          <text x="9" y="14" fill="#a4b6d4" font-family="IBM Plex Mono" font-size="8">${c.alertMeta.short} · ${c.temp}°C</text>
+        </g>`;
+    } else {
+      ticks += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="#7ab6ff" opacity="0.6"/>`;
+    }
+  });
+  svg.innerHTML = grid + land + ticks + markers;
+})();
+
+/* ============ Knowledge ============ */
+(function buildKnow(){
+  const host = document.getElementById("knowGrid");
+  host.innerHTML = WeatherData.KNOWLEDGE.map((k,i) => `
+    <article class="know-card">
+      <div class="ktag">${k.tag} · 0${i+1}</div>
+      <div>
+        <h4>${k.title.replace(/(getting longer|extreme|erratic|faster)/i, m => `<em>${m}</em>`)}</h4>
+        <p>${k.body}</p>
+        <div class="kstat">
+          <span class="v">${k.stat}</span>
+          <span class="l">${k.statLabel.toUpperCase()}</span>
+        </div>
+      </div>
+    </article>
+  `).join("");
+})();
+</script>
+</body>
+</html>

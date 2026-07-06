@@ -10,6 +10,7 @@ FILES
   Atmosphere.html    Main version — fan + ice-carve experience
   Observatory.html   Alternate version — data dashboard
   Blog/              Static blog directory
+  admin/             Blog editing backend (Decap CMS)
   fan-wind.js        Fan + wind animation engine
   ice-carve.js       Ice block + carving interaction
   weather-data.js    City weather data (Open-Meteo live + local fallback)
@@ -52,6 +53,16 @@ CONNECTING REAL WEATHER DATA
 weather-data.js now tries to load current readings from Open-Meteo
 (free, no API key). If the live request fails, the page falls back to
 the bundled local readings so the experience still works offline.
+
+BLOG ADMIN
+----------
+This project includes a Decap CMS admin at /admin/.
+To use it on Netlify:
+  - Deploy from the GitHub repository, not a manual zip-only deploy
+  - Enable Netlify Identity
+  - Enable Git Gateway
+  - Invite your user email
+  - Open https://your-domain/admin/
 
 REQUIREMENTS
 ------------

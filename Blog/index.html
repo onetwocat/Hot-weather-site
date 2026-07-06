@@ -48,6 +48,9 @@ h1 em{font-style:italic;color:var(--orange);font-weight:400}
 .post h2{font-family:"Fraunces",serif;font-weight:400;font-size:30px;line-height:1.04;margin:18px 0 14px}
 .post p{color:var(--txt-2);line-height:1.55;font-size:14px;margin:0}
 .post .meta{margin-top:28px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3)}
+.post.featured{border-color:rgba(77,208,225,.42);background:rgba(18,48,78,.78)}
+.post .cover{height:140px;margin:-4px -4px 18px;border:1px solid var(--line);background:rgba(91,158,255,.06);object-fit:cover;width:calc(100% + 8px)}
+.empty{border:1px solid var(--line);padding:24px;color:var(--txt-2);font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em}
 .note{
   margin-top:18px;border-top:1px solid var(--line);padding-top:18px;
   font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3);
@@ -67,6 +70,7 @@ h1 em{font-style:italic;color:var(--orange);font-weight:400}
     <a href="../index.html">HOME</a>
     <a href="../Atmosphere.html">ATMOSPHERE</a>
     <a href="../Observatory.html">OBSERVATORY</a>
+    <a href="../admin/">ADMIN</a>
   </nav>
 </header>
 <main>
@@ -77,36 +81,47 @@ h1 em{font-style:italic;color:var(--orange);font-weight:400}
     </div>
     <p class="sub">Short editorial notes for the Extreme Weather Observatory: how to read heat, wind, flood signals, and the difference between live weather and climate-scale change.</p>
   </section>
-  <section class="grid" aria-label="Blog posts">
-    <article class="post">
-      <div>
-        <div class="tag">HEAT</div>
-        <h2>Why heat pockets linger over cities</h2>
-        <p>Concrete, still air, and high-pressure ridges can hold warmth in place long after sunset. The map flags those pockets before they become easy to miss.</p>
-      </div>
-      <div class="meta">EWO NOTE / 04 MIN READ</div>
-    </article>
-    <article class="post">
-      <div>
-        <div class="tag">LIVE WEATHER</div>
-        <h2>What "current" weather really means</h2>
-        <p>Live weather feeds update in intervals. EWO now reads Open-Meteo current observations and refreshes them in the browser every five minutes.</p>
-      </div>
-      <div class="meta">DATA NOTE / UPDATED</div>
-    </article>
-    <article class="post">
-      <div>
-        <div class="tag">WIND</div>
-        <h2>The fan is a small model of relief</h2>
-        <p>The fan interaction is not a forecast. It is a tactile way to compare momentary cooling with the stubborn return of real atmospheric readings.</p>
-      </div>
-      <div class="meta">INTERACTION NOTE / 03 MIN READ</div>
-    </article>
+  <section class="grid" id="postGrid" aria-label="Blog posts">
+    <div class="empty">LOADING FIELD NOTES</div>
   </section>
   <div class="note">
     <span>STATIC DIRECTORY / BLOG</span>
     <span>DEPLOYS AT /Blog/</span>
   </div>
 </main>
+<script>
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+}
+
+function renderPosts(posts){
+  const grid = document.getElementById("postGrid");
+  if (!posts.length){
+    grid.innerHTML = '<div class="empty">NO BLOG POSTS YET</div>';
+    return;
+  }
+  grid.innerHTML = posts.map(post => `
+    <article class="post ${post.featured ? "featured" : ""}">
+      <div>
+        ${post.cover ? `<img class="cover" src="${escapeHTML(post.cover)}" alt=""/>` : ""}
+        <div class="tag">${escapeHTML(post.tag || "FIELD NOTE")}</div>
+        <h2>${escapeHTML(post.title)}</h2>
+        <p>${escapeHTML(post.summary)}</p>
+      </div>
+      <div class="meta">${escapeHTML(post.meta || post.date || "EWO NOTE")}</div>
+    </article>
+  `).join("");
+}
+
+fetch("posts.json", { cache: "no-store" })
+  .then(res => {
+    if (!res.ok) throw new Error("posts.json missing");
+    return res.json();
+  })
+  .then(data => renderPosts(Array.isArray(data.posts) ? data.posts : []))
+  .catch(() => renderPosts([]));
+</script>
 </body>
 </html>

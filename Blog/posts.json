@@ -1,0 +1,28 @@
+{
+  "posts": [
+    {
+      "tag": "HEAT",
+      "title": "Why heat pockets linger over cities",
+      "summary": "Concrete, still air, and high-pressure ridges can hold warmth in place long after sunset. The map flags those pockets before they become easy to miss.",
+      "meta": "EWO NOTE / 04 MIN READ",
+      "date": "2026-07-03",
+      "featured": false
+    },
+    {
+      "tag": "LIVE WEATHER",
+      "title": "What current weather really means",
+      "summary": "Live weather feeds update in intervals. EWO reads Open-Meteo current observations and refreshes them in the browser every five minutes.",
+      "meta": "DATA NOTE / UPDATED",
+      "date": "2026-07-03",
+      "featured": true
+    },
+    {
+      "tag": "WIND",
+      "title": "The fan is a small model of relief",
+      "summary": "The fan interaction is not a forecast. It is a tactile way to compare momentary cooling with the stubborn return of real atmospheric readings.",
+      "meta": "INTERACTION NOTE / 03 MIN READ",
+      "date": "2026-07-03",
+      "featured": false
+    }
+  ]
+}

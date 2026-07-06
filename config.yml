@@ -1,0 +1,32 @@
+backend:
+  name: git-gateway
+  branch: main
+
+site_url: https://www.hotweather.cc
+display_url: https://www.hotweather.cc
+logo_url: /admin/logo.png
+
+media_folder: "Blog/uploads"
+public_folder: "/Blog/uploads"
+
+collections:
+  - name: "blog_data"
+    label: "Blog"
+    files:
+      - name: "posts"
+        label: "Blog Posts"
+        file: "Blog/posts.json"
+        format: "json"
+        fields:
+          - label: "Posts"
+            name: "posts"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Tag", name: "tag", widget: "string", default: "FIELD NOTE" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Summary", name: "summary", widget: "text" }
+              - { label: "Meta", name: "meta", widget: "string", default: "EWO NOTE / 03 MIN READ" }
+              - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
+              - { label: "Featured", name: "featured", widget: "boolean", default: false, required: false }
+              - { label: "Cover image", name: "cover", widget: "image", required: false }

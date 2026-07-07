@@ -4,7 +4,7 @@
    ============================================================ */
 
 window.WeatherData = (function () {
-  // ---------- City registry: Europe / India / North America ----------
+  // ---------- City registry: Europe / India / Asia / North America ----------
   const CITIES = [
     // EUROPE
     { id: "london",     name: "London",      country: "GB", region: "EU", lat: 51.5,  lon: -0.13 },
@@ -21,6 +21,18 @@ window.WeatherData = (function () {
     { id: "kolkata",    name: "Kolkata",     country: "IN", region: "IN", lat: 22.57, lon: 88.36 },
     { id: "chennai",    name: "Chennai",     country: "IN", region: "IN", lat: 13.08, lon: 80.27 },
     { id: "jaisalmer",  name: "Jaisalmer",   country: "IN", region: "IN", lat: 26.91, lon: 70.92 },
+
+    // ASIA
+    { id: "beijing",    name: "Beijing",     country: "CN", region: "AS", lat: 39.90, lon: 116.40 },
+    { id: "shanghai",   name: "Shanghai",    country: "CN", region: "AS", lat: 31.23, lon: 121.47 },
+    { id: "tokyo",      name: "Tokyo",       country: "JP", region: "AS", lat: 35.68, lon: 139.65 },
+    { id: "seoul",      name: "Seoul",       country: "KR", region: "AS", lat: 37.57, lon: 126.98 },
+    { id: "bangkok",    name: "Bangkok",     country: "TH", region: "AS", lat: 13.76, lon: 100.50 },
+    { id: "singapore",  name: "Singapore",   country: "SG", region: "AS", lat: 1.35,  lon: 103.82 },
+    { id: "jakarta",    name: "Jakarta",     country: "ID", region: "AS", lat: -6.21, lon: 106.85 },
+    { id: "manila",     name: "Manila",      country: "PH", region: "AS", lat: 14.60, lon: 120.98 },
+    { id: "dubai",      name: "Dubai",       country: "AE", region: "AS", lat: 25.20, lon: 55.27 },
+    { id: "karachi",    name: "Karachi",     country: "PK", region: "AS", lat: 24.86, lon: 67.01 },
 
     // NORTH AMERICA
     { id: "newyork",    name: "New York",    country: "US", region: "NA", lat: 40.71, lon: -74.00 },
@@ -48,6 +60,17 @@ window.WeatherData = (function () {
     kolkata:    { temp: 33, hum: 84, wind: 38, press: 994,  precip: 98,  cond: "monsoon",    alert: "FLOOD" },
     chennai:    { temp: 36, hum: 79, wind: 24, press: 1003, precip: 12,  cond: "humid",      alert: null },
     jaisalmer:  { temp: 48, hum: 9,  wind: 47, press: 995,  precip: 0.0, cond: "duststorm",  alert: "DUST" },
+
+    beijing:    { temp: 34, hum: 42, wind: 16, press: 1007, precip: 0.0, cond: "clear",      alert: null },
+    shanghai:   { temp: 35, hum: 70, wind: 18, press: 1004, precip: 4,   cond: "humid",      alert: null },
+    tokyo:      { temp: 33, hum: 76, wind: 20, press: 1006, precip: 7,   cond: "humid",      alert: null },
+    seoul:      { temp: 31, hum: 69, wind: 15, press: 1008, precip: 2,   cond: "cloudy",     alert: null },
+    bangkok:    { temp: 36, hum: 74, wind: 12, press: 1001, precip: 9,   cond: "humid",      alert: "HEAT" },
+    singapore:  { temp: 32, hum: 82, wind: 14, press: 1003, precip: 16,  cond: "showers",    alert: null },
+    jakarta:    { temp: 31, hum: 84, wind: 10, press: 1004, precip: 22,  cond: "showers",    alert: null },
+    manila:     { temp: 34, hum: 78, wind: 48, press: 996,  precip: 58,  cond: "monsoon",    alert: "FLOOD" },
+    dubai:      { temp: 44, hum: 28, wind: 19, press: 998,  precip: 0.0, cond: "heatwave",   alert: "HEAT" },
+    karachi:    { temp: 41, hum: 52, wind: 24, press: 997,  precip: 0.0, cond: "heatwave",   alert: "HEAT" },
 
     newyork:    { temp: 28, hum: 64, wind: 16, press: 1013, precip: 0.0, cond: "clear",      alert: null },
     phoenix:    { temp: 47, hum: 8,  wind: 12, press: 1006, precip: 0.0, cond: "heatwave",   alert: "HEAT" },

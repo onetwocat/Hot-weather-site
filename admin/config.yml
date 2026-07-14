@@ -4,7 +4,7 @@ backend:
 
 site_url: https://www.hotweather.cc
 display_url: https://www.hotweather.cc
-logo_url: /Blog/
+logo_url: /admin/logo.png
 
 media_folder: "Blog/uploads"
 public_folder: "/Blog/uploads"
@@ -26,7 +26,8 @@ collections:
               - { label: "Tag", name: "tag", widget: "string", default: "FIELD NOTE" }
               - { label: "Title", name: "title", widget: "string" }
               - { label: "Summary", name: "summary", widget: "text" }
-              - { label: "Meta", name: "meta", widget: "string", default: "EWO NOTE / 03 MIN READ" }
+              - { label: "Meta", name: "meta", widget: "string", default: "EUROPE WEATHER NOTE / 03 MIN READ" }
               - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
               - { label: "Featured", name: "featured", widget: "boolean", default: false, required: false }
+              - { label: "Article URL", name: "url", widget: "string", required: false }
               - { label: "Cover image", name: "cover", widget: "image", required: false }

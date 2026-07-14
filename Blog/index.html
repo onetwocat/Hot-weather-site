@@ -1,9 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>EWO - Blog</title>
+<title>Europe Weather Blog | Heatwaves, El Nino &amp; Extreme Weather</title>
+<meta name="description" content="English weather explainers for European readers: heatwaves, El Nino, extreme rainfall, windstorms, live weather maps and climate risk across Europe."/>
+<meta name="keywords" content="Europe weather blog, European heatwave news, El Nino Europe, extreme weather Europe, climate blog Europe"/>
+<link rel="canonical" href="https://hotweather.cc/Blog/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Europe Weather Blog | Heatwaves, El Nino &amp; Extreme Weather"/>
+<meta property="og:description" content="English weather explainers for European readers: heatwaves, El Nino, extreme rainfall, windstorms, live weather maps and climate risk across Europe."/>
+<meta property="og:url" content="https://hotweather.cc/Blog/"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,300..600&display=swap" rel="stylesheet"/>
@@ -44,6 +51,8 @@ h1 em{font-style:italic;color:var(--orange);font-weight:400}
   border:1px solid var(--line);background:rgba(20,37,64,.72);border-radius:3px;
   padding:24px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between;
 }
+.post-link{color:inherit;text-decoration:none;display:block}
+.post-link:hover .post{border-color:rgba(77,208,225,.58);background:rgba(18,48,78,.86)}
 .post .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--cyan)}
 .post h2{font-family:"Fraunces",serif;font-weight:400;font-size:30px;line-height:1.04;margin:18px 0 14px}
 .post p{color:var(--txt-2);line-height:1.55;font-size:14px;margin:0}
@@ -65,7 +74,7 @@ h1 em{font-style:italic;color:var(--orange);font-weight:400}
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span class="brand-dot"></span><span>EWO BLOG</span></div>
+  <div class="brand"><span class="brand-dot"></span><span>HOTWEATHER EUROPE BLOG</span></div>
   <nav>
     <a href="../index.html">HOME</a>
     <a href="../Atmosphere.html">ATMOSPHERE</a>
@@ -79,7 +88,7 @@ h1 em{font-style:italic;color:var(--orange);font-weight:400}
       <div class="eyebrow">FIELD NOTES / CLIMATE EXPLAINERS / LIVE DATA</div>
       <h1>Weather, written <em>slowly.</em></h1>
     </div>
-    <p class="sub">Short editorial notes for the Extreme Weather Observatory: how to read heat, wind, flood signals, and the difference between live weather and climate-scale change.</p>
+    <p class="sub">Short editorial notes from HotWeather Europe: how to read heat, wind, flood signals, and the difference between live weather and climate-scale change.</p>
   </section>
   <section class="grid" id="postGrid" aria-label="Blog posts">
     <div class="empty">LOADING FIELD NOTES</div>
@@ -102,7 +111,8 @@ function renderPosts(posts){
     grid.innerHTML = '<div class="empty">NO BLOG POSTS YET</div>';
     return;
   }
-  grid.innerHTML = posts.map(post => `
+  grid.innerHTML = posts.map(post => {
+    const card = `
     <article class="post ${post.featured ? "featured" : ""}">
       <div>
         ${post.cover ? `<img class="cover" src="${escapeHTML(post.cover)}" alt=""/>` : ""}
@@ -110,9 +120,11 @@ function renderPosts(posts){
         <h2>${escapeHTML(post.title)}</h2>
         <p>${escapeHTML(post.summary)}</p>
       </div>
-      <div class="meta">${escapeHTML(post.meta || post.date || "EWO NOTE")}</div>
+      <div class="meta">${escapeHTML(post.meta || post.date || "WEATHER NOTE")}</div>
     </article>
-  `).join("");
+  `;
+    return post.url ? `<a class="post-link" href="${escapeHTML(post.url)}">${card}</a>` : card;
+  }).join("");
 }
 
 fetch("posts.json", { cache: "no-store" })

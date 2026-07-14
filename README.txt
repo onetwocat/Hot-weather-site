@@ -1,4 +1,4 @@
-EWO — Extreme Weather Observatory
+HotWeather Europe — HotWeather Europe
 ==================================
 
 This is a pure static website. No backend, no build step.

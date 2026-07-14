@@ -1,17 +1,54 @@
 {
   "posts": [
     {
+      "tag": "EL NINO EUROPE",
+      "title": "El Nino and Europe: what could change in the weather?",
+      "summary": "A Europe-focused guide to El Nino weather in 2026: winter storm tracks, rainfall risk, heatwaves, Atlantic circulation and what European readers should watch next.",
+      "meta": "EUROPE WEATHER GUIDE / 06 MIN READ",
+      "date": "2026-07-14",
+      "featured": true,
+      "url": "el-nino-europe-weather-winter-heatwave-risk-2026.html",
+      "cover": "uploads/el-nino-europe-weather-map-2026.png"
+    },
+    {
+      "tag": "ENSO WATCH",
+      "title": "Super El Nino Watch: could Europe face more extreme weather?",
+      "summary": "A very strong El Nino is becoming a serious 2026 risk. North America has the clearer signal, but Europe could still face heat, floods, windstorms or sharp winter swings depending on Atlantic circulation.",
+      "meta": "ENSO BRIEF / 07 MIN READ",
+      "date": "2026-07-13",
+      "featured": true,
+      "url": "super-el-nino-europe-extreme-weather-2026.html"
+    },
+    {
+      "tag": "EUROPE HEAT",
+      "title": "Europe's June 2026 heatwave: the signal behind the red map",
+      "summary": "Western and central Europe entered summer with repeated early-season heat. Copernicus, WMO and the Met Office point to a pattern of strong heat anomalies, warm nights and land surfaces hot enough to intensify urban risk.",
+      "meta": "EUROPE BRIEF / 05 MIN READ",
+      "date": "2026-07-07",
+      "featured": true,
+      "url": "europe-june-2026-heatwave.html"
+    },
+    {
+      "tag": "CLIMATE SIGNAL",
+      "title": "Europe's weather is turning more contrast-driven",
+      "summary": "The 2026 European weather story is not only heat. It is the sharper swing between blocked hot air, dry stress, flood-prone episodes and unusually warm seas that can feed stronger extremes.",
+      "meta": "CLIMATE EXPLAINER / 06 MIN READ",
+      "date": "2026-07-07",
+      "featured": false,
+      "url": "europe-weather-contrast-2026.html"
+    },
+    {
       "tag": "HEAT",
       "title": "Why heat pockets linger over cities",
       "summary": "Concrete, still air, and high-pressure ridges can hold warmth in place long after sunset. The map flags those pockets before they become easy to miss.",
-      "meta": "EWO NOTE / 04 MIN READ",
+      "meta": "EUROPE WEATHER NOTE / 04 MIN READ",
       "date": "2026-07-03",
       "featured": false
     },
     {
       "tag": "LIVE WEATHER",
       "title": "What current weather really means",
-      "summary": "Live weather feeds update in intervals. EWO reads Open-Meteo current observations and refreshes them in the browser every five minutes.",
+      "summary": "Live weather feeds update in intervals. HotWeather Europe reads Open-Meteo current observations and refreshes them in the browser every five minutes.",
       "meta": "DATA NOTE / UPDATED",
       "date": "2026-07-03",
       "featured": true

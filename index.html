@@ -1,9 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>EWO · A breeze for the world</title>
+<title>HotWeather Europe | Live Heatwave Map &amp; Extreme Weather Tracker</title>
+<meta name="description" content="Track Europe heatwaves, live heat pockets and extreme weather with a real-time weather map, city temperature bars and climate explainers for European readers."/>
+<meta name="keywords" content="Europe heatwave map, live weather map Europe, European weather tracker, extreme weather Europe, heatwave tracker, current temperature Europe, Europe climate news"/>
+<link rel="canonical" href="https://hotweather.cc/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="HotWeather Europe | Live Heatwave Map &amp; Extreme Weather Tracker"/>
+<meta property="og:description" content="Track Europe heatwaves, live heat pockets and extreme weather with a real-time weather map, city temperature bars and climate explainers for European readers."/>
+<meta property="og:url" content="https://hotweather.cc/"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&display=swap" rel="stylesheet"/>
@@ -568,7 +575,7 @@ footer{
   <div class="brand">
     <span class="brand-dot"></span>
     <div>
-      <div class="brand-name">EWO · A BREEZE FOR THE WORLD</div>
+      <div class="brand-name">HOTWEATHER EUROPE · LIVE HEATWAVE MAP</div>
       <div style="font-size:9px;color:var(--txt-3);margin-top:2px;letter-spacing:0.22em">EXTREME WEATHER · COOLED, ONE CLICK AT A TIME</div>
     </div>
   </div>
@@ -733,7 +740,7 @@ footer{
   <div class="sec-head">
     <div class="num">/V</div>
     <h2>What the data <em>is saying.</em></h2>
-    <div class="meta">EDITORIAL · EWO DESK</div>
+    <div class="meta">EDITORIAL · HOTWEATHER EUROPE</div>
   </div>
   <div class="know" id="knowGrid"></div>
 </section>
@@ -751,7 +758,7 @@ footer{
 </section>
 
 <footer>
-  <div>EWO · A BREEZE FOR THE WORLD · 2026</div>
+  <div>HOTWEATHER EUROPE · LIVE HEATWAVE MAP · 2026</div>
   <div>LIVE DATA · OPEN-METEO COMPATIBLE</div>
   <div>v 2.0 — ATMOSPHERE</div>
 </footer>
@@ -944,7 +951,7 @@ const regionFilter = document.getElementById("regionFilter");
 const countryFilter = document.getElementById("countryFilter");
 const sortFilter = document.getElementById("sortFilter");
 totalEl.textContent = allCities.length;
-hotEl.textContent = `HOTTEST · ${cities[0].name.toUpperCase()} · ${cities[0].temp}°C`;
+hotEl.textContent = `HOTTEST - ${allCities[0].name.toUpperCase()} - ${allCities[0].temp}C`;
 
 const cooled = new Set();
 // REAL = mock data (the "truth"). DISPLAY = what we show, which can dip when L3.
@@ -1006,19 +1013,19 @@ function renderHeat(){
     const dipped = Math.abs(t - real) > 0.4;
     const pct = Math.max(4, Math.min(100, ((t - tempMin) / (tempMax - tempMin)) * 100));
     const cooledClass = (cooled.has(c.id) || dipped) ? " cooled" : "";
-    const delta = dipped ? `<span class="delta">▼${(real - t).toFixed(1)}</span>` : "";
+    const delta = dipped ? `<span class="delta">-${(real - t).toFixed(1)}C</span>` : "";
     return `
       <div class="heat-row ${lvl(t)}${cooledClass}" data-id="${c.id}" style="--c1:${c1};--c2:${c2}">
         <div class="flag" style="background:linear-gradient(180deg,${c1} 50%,${c2} 50%)"></div>
-        <div class="city">${c.name}<small>${c.country} · ${c.conditionLabel.toUpperCase()}</small></div>
-        <div class="temp">${Math.round(t)}°C${delta}</div>
+        <div class="city">${c.name}<small>${c.country} - ${c.conditionLabel.toUpperCase()}</small></div>
+        <div class="temp">${Math.round(t)}C${delta}</div>
         <div class="bar"><i style="width:${pct}%"></i></div>
         <button class="cool-btn">${cooled.has(c.id) ? "COOLED" : (dipped ? "COOLING" : "COOL IT")}</button>
       </div>
     `;
   }).join("");
   // refresh hottest pointer (based on REAL temps — that's the truth)
-  hotEl.textContent = `HOTTEST · ${cities[0].name.toUpperCase()} · ${realTemps[cities[0].id]}°C`;
+  hotEl.textContent = `HOTTEST - ${cities[0].name.toUpperCase()} - ${realTemps[cities[0].id]}C`;
 }
 fillFilters();
 sortFilter.value = filters.sort;
@@ -1581,7 +1588,7 @@ function escapeHTML(value){
               <h3>${escapeHTML(post.title)}</h3>
               <p>${escapeHTML(post.summary)}</p>
             </div>
-            <div class="meta">${escapeHTML(post.meta || post.date || "EWO NOTE")}</div>
+            <div class="meta">${escapeHTML(post.meta || post.date || "WEATHER NOTE")}</div>
           </a>
         `;
       }).join("");

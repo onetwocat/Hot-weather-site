@@ -1,6 +1,26 @@
 {
   "posts": [
     {
+      "tag": "EUROPE HEATWAVE",
+      "title": "Europe heatwave map: where is it hottest this week?",
+      "summary": "A practical guide for European readers searching for heatwave maps: where the hottest zones usually focus, why maps turn red, and what warnings to check before travel or outdoor work.",
+      "meta": "HEATWAVE GUIDE / 05 MIN READ",
+      "date": "2026-07-15",
+      "featured": true,
+      "url": "europe-heatwave-map-hottest-this-week-2026.html",
+      "cover": "uploads/europe-heatwave-map-hottest-this-week-2026.png"
+    },
+    {
+      "tag": "EUROPE WINTER",
+      "title": "El Nino, the Atlantic jet stream and Europe's winter risk",
+      "summary": "A Europe-focused explainer on how El Nino may interact with the Atlantic jet stream, shaping winter rain, windstorms, mild spells and cold outbreaks across Europe.",
+      "meta": "WINTER WEATHER EXPLAINER / 06 MIN READ",
+      "date": "2026-07-14",
+      "featured": true,
+      "url": "el-nino-atlantic-jet-stream-europe-winter-2026.html",
+      "cover": "uploads/el-nino-europe-weather-map-2026.png"
+    },
+    {
       "tag": "EL NINO EUROPE",
       "title": "El Nino and Europe: what could change in the weather?",
       "summary": "A Europe-focused guide to El Nino weather in 2026: winter storm tracks, rainfall risk, heatwaves, Atlantic circulation and what European readers should watch next.",

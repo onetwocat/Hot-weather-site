@@ -409,13 +409,19 @@ body:not(.is-cool) .hero-title em{color:var(--hot)}
 }
 .home-blog-card{
   border:1px solid var(--line);background:rgba(20,37,64,.68);border-radius:3px;
-  padding:24px;text-decoration:none;color:var(--txt);min-height:240px;display:flex;flex-direction:column;justify-content:space-between;
+  padding:0;text-decoration:none;color:var(--txt);min-height:320px;display:flex;flex-direction:column;justify-content:space-between;
+  overflow:hidden;
 }
 .home-blog-card:hover{border-color:rgba(77,208,225,.55);background:rgba(18,48,78,.78)}
+.home-blog-cover{
+  width:100%;aspect-ratio:16/9;object-fit:cover;display:block;
+  border-bottom:1px solid var(--line);background:rgba(91,158,255,.06);
+}
+.home-blog-body{padding:22px 24px 0}
 .home-blog-card .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--cyan)}
 .home-blog-card h3{font-family:"Fraunces",serif;font-size:28px;line-height:1.05;font-weight:400;margin:18px 0 12px}
 .home-blog-card p{color:var(--txt-2);line-height:1.55;font-size:14px;margin:0}
-.home-blog-card .meta{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3);margin-top:24px}
+.home-blog-card .meta{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--txt-3);margin:24px;padding:0}
 
 /* ===== Ice section ===== */
 .ice-section{
@@ -1581,9 +1587,11 @@ function escapeHTML(value){
       }
       host.innerHTML = posts.map(post => {
         const href = post.url ? `Blog/${post.url}` : "Blog/";
+        const cover = post.cover ? `Blog/${post.cover}` : "";
         return `
           <a class="home-blog-card" href="${escapeHTML(href)}">
-            <div>
+            ${cover ? `<img class="home-blog-cover" src="${escapeHTML(cover)}" alt="${escapeHTML(post.title || "Weather article cover")}"/>` : ""}
+            <div class="home-blog-body">
               <div class="tag">${escapeHTML(post.tag || "FIELD NOTE")}</div>
               <h3>${escapeHTML(post.title)}</h3>
               <p>${escapeHTML(post.summary)}</p>

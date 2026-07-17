@@ -11,6 +11,8 @@
 <meta property="og:title" content="HotWeather Europe | Live Heatwave Map &amp; Extreme Weather Tracker"/>
 <meta property="og:description" content="Track Europe heatwaves, live heat pockets and extreme weather with a real-time weather map, city temperature bars and climate explainers for European readers."/>
 <meta property="og:url" content="https://hotweather.cc/"/>
+<meta property="og:image" content="https://hotweather.cc/assets/logo.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&display=swap" rel="stylesheet"/>
@@ -88,6 +90,25 @@ body[data-fan-level="3"] .fan-stage::after{
 .topbar nav{display:flex;gap:32px}
 .topbar nav a{color:var(--txt-2);text-decoration:none;cursor:pointer}
 .topbar nav a:hover{color:var(--txt)}
+.skip-link{position:absolute;left:16px;top:-80px;z-index:20;background:var(--txt);color:var(--bg);padding:10px 14px;text-decoration:none;border-radius:2px}
+.skip-link:focus{top:12px}
+.trust-strip{position:relative;z-index:4;max-width:1464px;margin:0 auto 12px;padding:12px 18px;border:1px solid var(--line);background:rgba(7,20,40,.58);display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;font:10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.12em;color:var(--txt-2)}
+.trust-strip span{display:flex;align-items:center;gap:7px}
+.trust-strip i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px rgba(95,220,224,.65)}
+.hero-actions{position:relative;z-index:2;display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.hero-cta{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 16px;border:1px solid var(--hot);background:var(--hot);color:#160b0a;text-decoration:none;font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;border-radius:2px}
+.hero-cta.secondary{background:transparent;color:var(--txt);border-color:var(--line-2)}
+.hero-cta:hover{filter:brightness(1.1)}
+.data-note{position:relative;z-index:2;margin-top:14px;color:var(--txt-3);font:10px/1.5 "IBM Plex Mono",monospace;letter-spacing:.08em}
+.data-note a{color:var(--blue);text-decoration:none}
+.mobile-jumps{display:none}
+.methodology{max-width:1464px;margin:72px auto 0;padding:0 48px}
+.methodology-card{display:grid;grid-template-columns:minmax(220px,.7fr) 1.3fr;gap:40px;padding:30px;border:1px solid var(--line);background:rgba(20,41,74,.38)}
+.methodology h2{margin:0 0 10px;font:400 28px/1.1 "Fraunces",serif}
+.methodology p{margin:0;color:var(--txt-2);font-size:13px;line-height:1.65}
+.methodology-list{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.methodology-list strong{display:block;margin-bottom:7px;color:var(--txt);font:500 10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.14em}
+.methodology a{color:var(--blue)}
 
 /* ===== HERO ===== */
 .hero{
@@ -561,8 +582,16 @@ footer{
   .topbar nav{display:none}
   .hero{padding:14px 20px 40px}
   .hero-left, .hero-right{padding:24px 20px}
+  .trust-strip{margin:0 20px 8px;justify-content:flex-start;gap:10px 18px}
   .hero-title{font-size:32px}
-  .fan-stage{min-height:360px}
+  .hero-left{min-height:auto}
+  .fan-stage{min-height:300px}
+  .hero-actions{display:grid;grid-template-columns:1fr}
+  .mobile-jumps{display:flex;overflow-x:auto;gap:8px;padding:4px 20px 14px;scrollbar-width:none}
+  .mobile-jumps a{flex:0 0 auto;border:1px solid var(--line);padding:9px 11px;color:var(--txt-2);text-decoration:none;font:10px/1 "IBM Plex Mono",monospace;letter-spacing:.1em}
+  .methodology{margin-top:48px;padding:0 20px}
+  .methodology-card{grid-template-columns:1fr;padding:22px 20px;gap:24px}
+  .methodology-list{grid-template-columns:1fr;gap:16px}
   .europe-map,.europe-map svg{min-height:420px}
   .heatlist{grid-template-columns:1fr}
   .weather-filters{grid-template-columns:1fr}
@@ -576,6 +605,7 @@ footer{
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to live weather</a>
 
 <header class="topbar">
   <div class="brand">
@@ -586,7 +616,7 @@ footer{
     </div>
   </div>
   <nav>
-    <a href="#hero">FAN</a>
+    <a href="#main-content">FAN</a>
     <a href="#ice">ICE</a>
     <a href="#climate">CLIMATE</a>
     <a href="#alerts">ALERTS</a>
@@ -596,17 +626,36 @@ footer{
   </nav>
 </header>
 
+<div class="trust-strip" aria-label="Weather data information">
+  <span><i></i>LIVE WEATHER DATA</span>
+  <span>UTC TIMESTAMPS</span>
+  <span>OPEN-METEO COMPATIBLE</span>
+  <span>NO SIGN-UP REQUIRED</span>
+</div>
+
+<nav class="mobile-jumps" aria-label="Quick links">
+  <a href="#europeMap">LIVE MAP</a>
+  <a href="#alerts">ALERTS</a>
+  <a href="#blog">WEATHER DESK</a>
+  <a href="#methodology">DATA NOTES</a>
+</nav>
+
 <!-- ============ HERO ============ -->
-<section class="hero" id="hero">
+<main class="hero" id="main-content">
 
   <!-- LEFT: FAN + CHARACTER + BUTTON -->
   <div class="hero-left">
     <div>
-      <div class="hero-eyebrow"><span class="bar"></span>FOR THE 87% OF EUROPEAN HOMES WITHOUT AIR-CONDITIONING<span class="bar"></span></div>
-      <h1 class="hero-title">Press the button.<br/><em>This breeze is for you.</em></h1>
+      <div class="hero-eyebrow"><span class="bar"></span>LIVE EUROPE HEATWAVE TRACKER<span class="bar"></span></div>
+      <h1 class="hero-title">See where Europe is <em>hottest right now.</em></h1>
       <p class="hero-sub">
-        Heatwaves are breaking records across Europe and beyond. If you are reading this from a warm room, the fan is pointed at you: press power, push it to <b style="color:var(--cyan)">L3</b>, and your screen gets thirty seconds of borrowed cool before the real weather returns.
+        Check current city temperatures, explore active heat pockets and understand the forces behind Europe's extreme weather. Then take a 30-second virtual cooling break with the fan below.
       </p>
+      <div class="hero-actions">
+        <a class="hero-cta" href="#europeMap">VIEW LIVE HEAT MAP →</a>
+        <a class="hero-cta secondary" href="#blog">READ LATEST WEATHER BRIEFING</a>
+      </div>
+      <div class="data-note">CURRENT CONDITIONS · AUTOMATIC UTC REFRESH · <a href="#methodology">VIEW DATA NOTES</a></div>
     </div>
 
     <div class="fan-stage">
@@ -667,7 +716,7 @@ footer{
       <div class="heatlist" id="heatlist"></div>
     </div>
   </div>
-</section>
+</main>
 
 <!-- ============ ICE CARVE ============ -->
 <section class="ice-section" id="ice">
@@ -763,9 +812,23 @@ footer{
   </div>
 </section>
 
+<section class="methodology" id="methodology" aria-labelledby="methodology-title">
+  <div class="methodology-card">
+    <div>
+      <h2 id="methodology-title">Know what you are looking at.</h2>
+      <p>HotWeather separates fetched observations from illustrative climate context, so the status shown on screen is clear.</p>
+    </div>
+    <div class="methodology-list">
+      <p><strong>CURRENT CONDITIONS</strong>City readings are requested from the <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo API</a>. The UTC status above the map shows whether live readings or local fallback data are displayed.</p>
+      <p><strong>REFRESH &amp; DELAY</strong>Weather observations can update at different times. Treat values as situational guidance, not emergency instructions.</p>
+      <p><strong>SAFETY</strong>For warnings and protective action, follow your national meteorological service and local authorities.</p>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div>HOTWEATHER EUROPE · LIVE HEATWAVE MAP · 2026</div>
-  <div>LIVE DATA · OPEN-METEO COMPATIBLE</div>
+  <div>LIVE DATA · OPEN-METEO · CONDITIONS MAY BE DELAYED</div>
   <div>v 2.0 — ATMOSPHERE</div>
 </footer>
 
@@ -778,14 +841,12 @@ footer{
 <script src="weather-data.js"></script>
 <script src="fan-wind.js"></script>
 <script src="ice-carve.js"></script>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
-if (window.netlifyIdentity) {
-  window.netlifyIdentity.on("init", user => {
-    if (!user && window.location.hash.includes("_token=")) {
-      window.netlifyIdentity.open();
-    }
-  });
+if (window.location.hash.includes("_token=")) {
+  const identityScript = document.createElement("script");
+  identityScript.src = "https://identity.netlify.com/v1/netlify-identity-widget.js";
+  identityScript.onload = () => window.netlifyIdentity?.open();
+  document.head.appendChild(identityScript);
 }
 
 /* ============ Clock ============ */

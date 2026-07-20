@@ -5,14 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>HotWeather Europe | Live Heatwave Map &amp; Extreme Weather Tracker</title>
 <meta name="description" content="Track Europe heatwaves, live heat pockets and extreme weather with a real-time weather map, city temperature bars and climate explainers for European readers."/>
-<meta name="keywords" content="Europe heatwave map, live weather map Europe, European weather tracker, extreme weather Europe, heatwave tracker, current temperature Europe, Europe climate news"/>
+<meta name="robots" content="index,follow,max-image-preview:large"/>
+<meta name="theme-color" content="#0b1a30"/>
 <link rel="canonical" href="https://hotweather.cc/"/>
 <meta property="og:type" content="website"/>
+<meta property="og:site_name" content="HotWeather Europe"/>
 <meta property="og:title" content="HotWeather Europe | Live Heatwave Map &amp; Extreme Weather Tracker"/>
 <meta property="og:description" content="Track Europe heatwaves, live heat pockets and extreme weather with a real-time weather map, city temperature bars and climate explainers for European readers."/>
 <meta property="og:url" content="https://hotweather.cc/"/>
 <meta property="og:image" content="https://hotweather.cc/assets/logo.png"/>
+<meta property="og:image:alt" content="HotWeather Europe live heatwave tracker"/>
 <meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="HotWeather Europe | Live Heatwave Map"/>
+<meta name="twitter:description" content="Track current European heat pockets, city temperatures and extreme weather."/>
+<meta name="twitter:image" content="https://hotweather.cc/assets/logo.png"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"HotWeather Europe","url":"https://hotweather.cc/","description":"Live European heatwave map, city temperatures and extreme weather explainers.","inLanguage":"en-GB"}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&display=swap" rel="stylesheet"/>
@@ -90,6 +97,7 @@ body[data-fan-level="3"] .fan-stage::after{
 .topbar nav{display:flex;gap:32px}
 .topbar nav a{color:var(--txt-2);text-decoration:none;cursor:pointer}
 .topbar nav a:hover{color:var(--txt)}
+.topbar nav a:focus-visible,.hero-cta:focus-visible,.mobile-jumps a:focus-visible,.fan-controls button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 .skip-link{position:absolute;left:16px;top:-80px;z-index:20;background:var(--txt);color:var(--bg);padding:10px 14px;text-decoration:none;border-radius:2px}
 .skip-link:focus{top:12px}
 .trust-strip{position:relative;z-index:4;max-width:1464px;margin:0 auto 12px;padding:12px 18px;border:1px solid var(--line);background:rgba(7,20,40,.58);display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;font:10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.12em;color:var(--txt-2)}
@@ -602,6 +610,10 @@ footer{
   .know-card .ktag{writing-mode:horizontal-tb;transform:none}
   footer{padding:24px 20px;flex-direction:column;gap:14px;text-align:center}
 }
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .wind-canvas{display:none}
+}
 </style>
 </head>
 <body>
@@ -629,7 +641,7 @@ footer{
 <div class="trust-strip" aria-label="Weather data information">
   <span><i></i>LIVE WEATHER DATA</span>
   <span>UTC TIMESTAMPS</span>
-  <span>OPEN-METEO COMPATIBLE</span>
+  <span>OPEN-METEO API</span>
   <span>NO SIGN-UP REQUIRED</span>
 </div>
 
@@ -665,9 +677,9 @@ footer{
 
     <div class="fan-controls">
       <div class="levels" id="fanLevels">
-        <button data-lv="1">L1 · BREEZE</button>
-        <button data-lv="2" class="active">L2 · STEADY</button>
-        <button data-lv="3">L3 · GUSTY</button>
+        <button data-lv="1" aria-pressed="false">L1 · BREEZE</button>
+        <button data-lv="2" class="active" aria-pressed="true">L2 · STEADY</button>
+        <button data-lv="3" aria-pressed="false">L3 · GUSTY</button>
       </div>
       <button class="audio-toggle" id="audioBtn">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 6h2l3-3v10L5 10H3V6z"/><path d="M11 5q1.5 1.4 1.5 3T11 11" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
@@ -873,8 +885,12 @@ const levelBtns = document.querySelectorAll("#fanLevels button");
 let currentLevel = 2;
 FanWind.setLevel(currentLevel);
 levelBtns.forEach(b => b.addEventListener("click", () => {
-  levelBtns.forEach(x => x.classList.remove("active"));
+  levelBtns.forEach(x => {
+    x.classList.remove("active");
+    x.setAttribute("aria-pressed", "false");
+  });
   b.classList.add("active");
+  b.setAttribute("aria-pressed", "true");
   currentLevel = parseInt(b.dataset.lv, 10);
   FanWind.setLevel(currentLevel);            // <- now the fan engine speeds up at L3
   // If fan is OFF and user picks a level, turn it on

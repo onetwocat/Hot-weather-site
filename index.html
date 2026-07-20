@@ -97,6 +97,7 @@ body[data-fan-level="3"] .fan-stage::after{
 .topbar nav{display:flex;gap:32px}
 .topbar nav a{color:var(--txt-2);text-decoration:none;cursor:pointer}
 .topbar nav a:hover{color:var(--txt)}
+.topbar nav a:focus-visible,.hero-cta:focus-visible,.mobile-jumps a:focus-visible,.fan-controls button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 .skip-link{position:absolute;left:16px;top:-80px;z-index:20;background:var(--txt);color:var(--bg);padding:10px 14px;text-decoration:none;border-radius:2px}
 .skip-link:focus{top:12px}
 .trust-strip{position:relative;z-index:4;max-width:1464px;margin:0 auto 12px;padding:12px 18px;border:1px solid var(--line);background:rgba(7,20,40,.58);display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;font:10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.12em;color:var(--txt-2)}
@@ -608,6 +609,10 @@ footer{
   .know-card{grid-template-columns:1fr;gap:14px}
   .know-card .ktag{writing-mode:horizontal-tb;transform:none}
   footer{padding:24px 20px;flex-direction:column;gap:14px;text-align:center}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .wind-canvas{display:none}
 }
 </style>
 </head>
